@@ -156,17 +156,8 @@ def render_header(snapshot: Dict[str, Any]) -> None:
 
 
 def render_narrative(snapshot: Dict[str, Any]) -> None:
-    narrative = snapshot.get("narrative", {})
-    headline = narrative.get("headline", "")
-    overall = narrative.get("overall_summary", "")
-    fallback_headline = "Weekly milestone snapshot"
-    fallback_prefix = "Auto-generated summary (LLM unavailable):"
-    if str(headline).strip() == fallback_headline and str(overall).strip().startswith(fallback_prefix):
-        return
-    if headline:
-        st.markdown(f"### {headline}")
-    if overall:
-        st.info(overall)
+    # Intentionally suppress top-level weekly narrative section.
+    return
 
 
 def parse_milestone_date(value: str) -> Optional[datetime]:

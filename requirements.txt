@@ -4,3 +4,4 @@ plotly>=5.15.0
 requests>=2.28.0
 python-dotenv>=1.0.0
 openpyxl
+aiohttp>=3.8.0

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
 import re
@@ -13,6 +14,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import requests
+import aiohttp
 from dotenv import load_dotenv
 
 from gus_client import GUSClient
@@ -264,6 +266,120 @@ def summarize_tab(rows: List[Dict[str, Any]], label: str) -> Dict[str, Any]:
     }
 
 
+def build_tab_context(rows: List[Dict[str, Any]], label: str) -> Dict[str, Any]:
+    by_team: Dict[str, Dict[str, Any]] = {}
+    by_milestone: Dict[str, int] = {}
+    status_counts: Dict[str, int] = {}
+    for row in rows:
+        team = normalize_text(row.get("Team", "")) or "Unassigned"
+        milestone = normalize_text(row.get("Milestone", "")) or "Unspecified"
+        status = normalize_text(row.get("Status", "")) or "Unknown"
+        by_milestone[milestone] = by_milestone.get(milestone, 0) + 1
+        status_counts[status] = status_counts.get(status, 0) + 1
+
+        bucket = by_team.setdefault(
+            team,
+            {"epic_count": 0, "avg_complete_sum": 0.0, "remaining_sum": 0.0, "milestones": {}, "statuses": {}},
+        )
+        bucket["epic_count"] += 1
+        bucket["avg_complete_sum"] += float(row.get("% Complete", 0.0) or 0.0)
+        bucket["remaining_sum"] += float(row.get("Remaining Work Items", 0.0) or 0.0)
+        bucket["milestones"][milestone] = bucket["milestones"].get(milestone, 0) + 1
+        bucket["statuses"][status] = bucket["statuses"].get(status, 0) + 1
+
+    team_summary: List[Dict[str, Any]] = []
+    for team, data in by_team.items():
+        count = int(data["epic_count"])
+        avg = round((data["avg_complete_sum"] / count), 1) if count else 0.0
+        top_milestones = sorted(data["milestones"].items(), key=lambda x: x[1], reverse=True)[:3]
+        team_summary.append(
+            {
+                "team": team,
+                "epic_count": count,
+                "avg_complete": avg,
+                "remaining_work_items": round(float(data["remaining_sum"]), 1),
+                "top_milestones": top_milestones,
+                "status_mix": data["statuses"],
+            }
+        )
+    team_summary.sort(key=lambda x: x["epic_count"], reverse=True)
+
+    notable_epics = sorted(
+        rows,
+        key=lambda r: (float(r.get("Remaining Work Items", 0.0) or 0.0), 100.0 - float(r.get("% Complete", 0.0) or 0.0)),
+        reverse=True,
+    )[:12]
+    notable_epics = [
+        {
+            "Epic Name": normalize_text(r.get("Epic Name", "")),
+            "Team": normalize_text(r.get("Team", "")),
+            "Milestone": normalize_text(r.get("Milestone", "")),
+            "Status": normalize_text(r.get("Status", "")),
+            "% Complete": float(r.get("% Complete", 0.0) or 0.0),
+            "Remaining Work Items": float(r.get("Remaining Work Items", 0.0) or 0.0),
+        }
+        for r in notable_epics
+    ]
+
+    return {
+        "label": label,
+        "team_summary": team_summary,
+        "milestone_counts": sorted(by_milestone.items(), key=lambda x: x[1], reverse=True)[:8],
+        "status_counts": status_counts,
+        "notable_epics": notable_epics,
+        "workstreams": summarize_workstreams(rows, label),
+    }
+
+
+def summarize_workstreams(rows: List[Dict[str, Any]], label: str) -> List[Dict[str, Any]]:
+    if "SCRT2" in label:
+        streams = {
+            "KV API": ["kv api", "api endpoint", "rest api", "crud", "table catalog"],
+            "CDC": ["cdc", "change data capture", "dbstream"],
+            "Sharding": ["shard", "sharding", "partition", "routing"],
+            "Global Secondary Index": ["global secondary index", "gsi", "secondary index"],
+        }
+    else:
+        streams = {
+            "Development": ["dev", "develop", "implementation", "code", "build", "feature", "api"],
+            "Deployment": ["deploy", "rollout", "release", "onboard", "production", "sandbox"],
+        }
+
+    output: List[Dict[str, Any]] = []
+    for stream, keywords in streams.items():
+        matched = []
+        for row in rows:
+            text = " ".join(
+                [
+                    normalize_text(row.get("Epic Name", "")),
+                    normalize_text(row.get("Epic Health Comment", "")),
+                    normalize_text(row.get("Milestone", "")),
+                ]
+            ).lower()
+            if any(k in text for k in keywords):
+                matched.append(row)
+        if not matched:
+            continue
+        count = len(matched)
+        avg_complete = round(sum(float(r.get("% Complete", 0.0) or 0.0) for r in matched) / count, 1) if count else 0.0
+        remaining = round(sum(float(r.get("Remaining Work Items", 0.0) or 0.0) for r in matched), 1)
+        statuses: Dict[str, int] = {}
+        for r in matched:
+            s = normalize_text(r.get("Status", "")) or "Unknown"
+            statuses[s] = statuses.get(s, 0) + 1
+        output.append(
+            {
+                "name": stream,
+                "epic_count": count,
+                "avg_complete": avg_complete,
+                "remaining_work_items": remaining,
+                "status_mix": statuses,
+            }
+        )
+    output.sort(key=lambda x: x["epic_count"], reverse=True)
+    return output
+
+
 def parse_milestone_date(value: str) -> Optional[str]:
     text = normalize_text(value)
     match = re.search(r"(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?", text)
@@ -279,6 +395,44 @@ def parse_milestone_date(value: str) -> Optional[str]:
         return datetime(year, month, day).strftime("%Y-%m-%d")
     except ValueError:
         return None
+
+
+def filter_rows_by_milestone_window(rows: List[Dict[str, Any]], days_back: int = 10, days_forward: int = 90) -> List[Dict[str, Any]]:
+    today = datetime.now().date()
+    start = today - pd.Timedelta(days=days_back)
+    end = today + pd.Timedelta(days=days_forward)
+    selected: List[Dict[str, Any]] = []
+    for row in rows:
+        milestone = normalize_text(row.get("Milestone", ""))
+        iso = parse_milestone_date(milestone)
+        if not iso:
+            continue
+        try:
+            d = datetime.strptime(iso, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        if start <= d <= end:
+            selected.append(row)
+    return selected
+
+
+def load_previous_tab_narratives(current_week_key: str) -> Dict[str, str]:
+    if not WEEKLY_DIR.exists():
+        return {}
+    candidates = sorted(WEEKLY_DIR.glob("weekly_report_*.json"), reverse=True)
+    for path in candidates:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if payload.get("week_key") == current_week_key:
+            continue
+        tabs = payload.get("tabs", {})
+        out: Dict[str, str] = {}
+        for label in REPORTS.keys():
+            out[label] = normalize_text((tabs.get(label, {}) or {}).get("narrative", ""))
+        return out
+    return {}
 
 
 def build_milestone_groups(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -324,37 +478,69 @@ class KVNarrativeGenerator:
         self.model = os.getenv("KV_LLM_MODEL", "claude-sonnet-4-20250514")
         self.api_url = "https://eng-ai-model-gateway.sfproxy.devx-preprod.aws-esvc1-useast2.aws.sfdc.cl/chat/completions"
 
-    def generate(self, week_key: str, tab_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def generate(
+        self,
+        week_key: str,
+        tab_summaries: List[Dict[str, Any]],
+        tab_contexts: List[Dict[str, Any]],
+        previous_tab_narratives: Dict[str, str],
+    ) -> Dict[str, Any]:
         if not self.api_key:
-            return self._fallback(tab_summaries)
+            return self._fallback(tab_summaries, tab_contexts)
         try:
-            return self._call_llm(week_key, tab_summaries)
-        except Exception:
-            return self._fallback(tab_summaries)
+            return self._call_llm(week_key, tab_summaries, tab_contexts, previous_tab_narratives)
+        except Exception as e:
+            print(f"⚠️ LLM generation failed, using fallback summary. Error: {e}")
+            return self._fallback(tab_summaries, tab_contexts)
 
-    def _fallback(self, tab_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _fallback(self, tab_summaries: List[Dict[str, Any]], tab_contexts: List[Dict[str, Any]]) -> Dict[str, Any]:
         headline = "Weekly milestone snapshot"
-        overall = "Auto-generated summary (LLM unavailable): "
+        overall = "Weekly view by workstream: "
         parts: List[str] = []
         per_tab: Dict[str, str] = {}
+        context_by_label = {c["label"]: c for c in tab_contexts}
         for summary in tab_summaries:
+            ctx = context_by_label.get(summary["label"], {})
+            top_teams = ", ".join([t["team"] for t in (ctx.get("team_summary", []) or [])[:3]])
+            streams = ctx.get("workstreams", []) or []
+            stream_text = "; ".join(
+                [
+                    f"{s['name']}: {s['epic_count']} epics, {s['avg_complete']}% complete, {s['remaining_work_items']} remaining"
+                    for s in streams[:4]
+                ]
+            )
             sentence = (
                 f"{summary['label']}: {summary['total_epics']} epics, "
                 f"{summary['avg_complete']}% avg completion, "
-                f"{summary['remaining_work_items']} remaining work items."
+                f"{summary['remaining_work_items']} remaining work items. "
+                f"Work concentration is highest in teams: {top_teams or 'not available'}. "
+                f"Workstreams -> {stream_text or 'not enough keyword matches'}."
             )
             parts.append(sentence)
             per_tab[summary["label"]] = sentence
         overall += " ".join(parts)
         return {"headline": headline, "overall_summary": overall, "tab_narratives": per_tab}
 
-    def _call_llm(self, week_key: str, tab_summaries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _call_llm(
+        self,
+        week_key: str,
+        tab_summaries: List[Dict[str, Any]],
+        tab_contexts: List[Dict[str, Any]],
+        previous_tab_narratives: Dict[str, str],
+    ) -> Dict[str, Any]:
         prompt = (
             "You are a program operations analyst. Write concise executive narrative for weekly epic milestone status. "
+            "Focus on where work is happening (teams and milestones), risk hotspots (Blocked/Watch and high remaining work), "
+            "and progress indicators. For SCRT2 explicitly discuss KV API, CDC, Sharding, and Global Secondary Index when present. "
+            "For VegamDB explicitly discuss development vs deployment work. "
+            "Use only epics whose milestone date is within the past 10 days to next 3 months. "
+            "Do not repeat prior week's wording; keep the message fresh while factually grounded. "
             "Return strict JSON with keys: headline, overall_summary, tab_narratives. "
             "tab_narratives must be an object keyed by tab label, each value 2-3 sentences.\n\n"
             f"Week: {week_key}\n"
-            f"Tab summaries:\n{json.dumps(tab_summaries, indent=2)}"
+            f"Tab summaries:\n{json.dumps(tab_summaries, indent=2)}\n\n"
+            f"Tab contexts:\n{json.dumps(tab_contexts, indent=2)}\n\n"
+            f"Previous tab narratives:\n{json.dumps(previous_tab_narratives, indent=2)}"
         )
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -371,13 +557,40 @@ class KVNarrativeGenerator:
         if self.openai_user_id:
             payload["user"] = self.openai_user_id
 
-        response = requests.post(self.api_url, headers=headers, json=payload, timeout=90)
-        response.raise_for_status()
-        content = response.json()["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
+        content = self._call_llm_sync(payload, headers)
+        cleaned = content.strip()
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r"^```[a-zA-Z]*\n?", "", cleaned)
+            cleaned = re.sub(r"\n?```$", "", cleaned).strip()
+        parsed = json.loads(cleaned)
         if not isinstance(parsed, dict):
             raise ValueError("LLM response is not an object")
         return parsed
+
+    def _call_llm_sync(self, payload: Dict[str, Any], headers: Dict[str, str]) -> str:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            return loop.run_until_complete(self._call_llm_async(payload, headers))
+        finally:
+            loop.close()
+
+    async def _call_llm_async(self, payload: Dict[str, Any], headers: Dict[str, str]) -> str:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                self.api_url,
+                headers=headers,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=90),
+            ) as response:
+                if response.status != 200:
+                    body = await response.text()
+                    raise RuntimeError(f"LLM gateway returned {response.status}: {body[:400]}")
+                result = await response.json()
+                choices = result.get("choices", [])
+                if not choices:
+                    raise RuntimeError("LLM response missing choices")
+                return choices[0]["message"]["content"]
 
 
 def save_weekly_bundle(bundle: Dict[str, Any]) -> Path:
@@ -413,6 +626,7 @@ def generate_weekly_report(
 
     tabs_payload: Dict[str, Any] = {}
     tab_summaries: List[Dict[str, Any]] = []
+    tab_contexts: List[Dict[str, Any]] = []
     for label, report_id in REPORTS.items():
         xlsx_source = scrt2_xlsx if label == "SCRT2 milestones" else vegamdb_xlsx
         if xlsx_source:
@@ -425,8 +639,11 @@ def generate_weekly_report(
             rows = build_milestone_rows(raw)
             source = "GUS Reports API"
         summary = summarize_tab(rows, label)
+        ranged_rows = filter_rows_by_milestone_window(rows, days_back=10, days_forward=90)
+        context = build_tab_context(ranged_rows if ranged_rows else rows, label)
         milestone_groups = build_milestone_groups(rows)
         tab_summaries.append(summary)
+        tab_contexts.append(context)
         tabs_payload[label] = {
             "report_id": report_id,
             "rows": rows,
@@ -439,7 +656,8 @@ def generate_weekly_report(
         }
 
     week_key = current_week_key(now)
-    narrative = KVNarrativeGenerator().generate(week_key, tab_summaries)
+    previous_tab_narratives = load_previous_tab_narratives(week_key)
+    narrative = KVNarrativeGenerator().generate(week_key, tab_summaries, tab_contexts, previous_tab_narratives)
     for label in REPORTS:
         tabs_payload[label]["narrative"] = narrative.get("tab_narratives", {}).get(label, "")
 
