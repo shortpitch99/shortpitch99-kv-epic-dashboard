@@ -23,6 +23,7 @@ st.set_page_config(
 
 DATA_DIR = Path(__file__).parent / "data"
 WEEKLY_DIR = DATA_DIR / "weekly_reports"
+CLOUD_WEEKLY_DIR = Path(__file__).parent / "cloud_reports"
 HEADER_IMAGE_PATHS = [
     Path("/users/rchowdhuri/Downloads/scrt2.png"),
     Path("/Users/rchowdhuri/Downloads/scrt2.png"),
@@ -99,7 +100,14 @@ def current_week_key(now: datetime) -> str:
 def list_weekly_reports() -> List[Path]:
     WEEKLY_DIR.mkdir(parents=True, exist_ok=True)
     files = sorted(WEEKLY_DIR.glob("weekly_report_*.json"), reverse=True)
-    return files
+    if CLOUD_WEEKLY_DIR.exists():
+        files.extend(sorted(CLOUD_WEEKLY_DIR.glob("weekly_report_*.json"), reverse=True))
+    # Deduplicate by filename, prefer local WEEKLY_DIR if both exist.
+    dedup: Dict[str, Path] = {}
+    for path in files:
+        if path.name not in dedup:
+            dedup[path.name] = path
+    return sorted(dedup.values(), key=lambda p: p.name, reverse=True)
 
 
 def load_report(path: Path) -> Optional[Dict[str, Any]]:
@@ -110,10 +118,12 @@ def load_report(path: Path) -> Optional[Dict[str, Any]]:
 
 
 def load_latest_report() -> Optional[Dict[str, Any]]:
-    latest = WEEKLY_DIR / "latest.json"
-    if not latest.exists():
-        return None
-    return load_report(latest)
+    for latest in [WEEKLY_DIR / "latest.json", CLOUD_WEEKLY_DIR / "latest.json"]:
+        if latest.exists():
+            loaded = load_report(latest)
+            if loaded:
+                return loaded
+    return None
 
 
 def render_header(snapshot: Dict[str, Any]) -> None:
