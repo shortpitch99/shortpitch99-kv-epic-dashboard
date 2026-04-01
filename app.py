@@ -25,6 +25,7 @@ DATA_DIR = Path(__file__).parent / "data"
 WEEKLY_DIR = DATA_DIR / "weekly_reports"
 CLOUD_WEEKLY_DIR = Path(__file__).parent / "cloud_reports"
 HEADER_IMAGE_PATHS = [
+    Path(__file__).parent / "assets" / "scrt2.png",
     Path("/users/rchowdhuri/Downloads/scrt2.png"),
     Path("/Users/rchowdhuri/Downloads/scrt2.png"),
 ]
@@ -128,17 +129,10 @@ def load_latest_report() -> Optional[Dict[str, Any]]:
 
 def render_header(snapshot: Dict[str, Any]) -> None:
     image_src = get_banner_image_src()
-    image_html = f'<img src="{image_src}" class="kv-banner-bg" alt="SCRT2 Banner">' if image_src else ""
-    st.markdown(
-        f"""
-        <div class="kv-banner">
-            {image_html}
-            <h1>KV Epic Dashboard</h1>
-            <p>SCRT2 + VegamDB milestone tracking with week-over-week snapshots.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    if image_src:
+        st.image(image_src, use_container_width=True)
+    st.title("KV Epic Dashboard")
+    st.caption("SCRT2 + VegamDB milestone tracking with week-over-week snapshots.")
 
 
 def render_narrative(snapshot: Dict[str, Any]) -> None:
