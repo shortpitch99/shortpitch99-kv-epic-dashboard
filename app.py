@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="KV Epic Dashboard",
@@ -130,9 +131,28 @@ def load_latest_report() -> Optional[Dict[str, Any]]:
 def render_header(snapshot: Dict[str, Any]) -> None:
     image_src = get_banner_image_src()
     if image_src:
-        st.image(image_src, use_container_width=True)
-    st.title("KV Epic Dashboard")
-    st.caption("SCRT2 + VegamDB milestone tracking with week-over-week snapshots.")
+        components.html(
+            f"""
+            <div style="position:relative;width:100%;height:120px;border-radius:10px;overflow:hidden;margin:0 0 12px 0;">
+              <img src="{image_src}" alt="KV Banner"
+                   style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.72);" />
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+                          color:#ffffff;font-size:2rem;font-weight:800;letter-spacing:0.01em;text-shadow:0 2px 8px rgba(0,0,0,0.6);">
+                KV Epic Dashboard
+              </div>
+            </div>
+            """,
+            height=130,
+        )
+    else:
+        st.markdown(
+            """
+            <div style="background:linear-gradient(135deg,#111827,#1f2937);color:#fff;border-radius:10px;padding:14px 18px;margin-bottom:12px;text-align:center;font-size:1.8rem;font-weight:800;">
+              KV Epic Dashboard
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_narrative(snapshot: Dict[str, Any]) -> None:
