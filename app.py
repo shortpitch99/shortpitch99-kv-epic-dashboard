@@ -399,6 +399,58 @@ def render_status_colored_table(table: pd.DataFrame) -> None:
     st.markdown(html_table, unsafe_allow_html=True)
 
 
+def render_notes_section(payload: Dict[str, Any], tab_key: str) -> None:
+    notes = payload.get("notes", {}) or {}
+    risks = notes.get("risks", []) or []
+    actions = notes.get("action_items", []) or []
+
+    st.markdown("---")
+    st.markdown(
+        '<div style="font-size:1.4rem;font-weight:800;color:#1e3a8a;margin:8px 0 8px 0;">Risks and Action Items</div>',
+        unsafe_allow_html=True,
+    )
+
+    if not risks and not actions:
+        st.info("No risks or action items for this week.")
+        return
+
+    if risks:
+        st.markdown(
+            '<div style="font-size:1.05rem;font-weight:700;color:#0f766e;margin:6px 0;">Risks</div>',
+            unsafe_allow_html=True,
+        )
+        rdf = pd.DataFrame(risks).rename(
+            columns={
+                "priority_or_severity": "Severity",
+                "owner": "Owner",
+                "due": "Due",
+                "status": "Status",
+                "summary": "Summary",
+            }
+        )
+        st.dataframe(rdf, use_container_width=True, hide_index=True, key=f"risks_{tab_key}")
+    else:
+        st.caption("No risks recorded.")
+
+    if actions:
+        st.markdown(
+            '<div style="font-size:1.05rem;font-weight:700;color:#0f766e;margin:10px 0 6px 0;">Action Items</div>',
+            unsafe_allow_html=True,
+        )
+        adf = pd.DataFrame(actions).rename(
+            columns={
+                "priority_or_severity": "Priority",
+                "owner": "Owner",
+                "due": "Due",
+                "status": "Status",
+                "summary": "Summary",
+            }
+        )
+        st.dataframe(adf, use_container_width=True, hide_index=True, key=f"actions_{tab_key}")
+    else:
+        st.caption("No action items recorded.")
+
+
 def render_milestone_epics_table(subset: pd.DataFrame, tab_key: str) -> None:
     required_cols = ["Epic Name", "Status", "Epic Health Comment"]
     keep_cols = [c for c in required_cols if c in subset.columns]
@@ -541,6 +593,7 @@ def main() -> None:
             if tab_narrative:
                 st.markdown("#### Weekly Summary")
                 st.write(tab_narrative)
+            render_notes_section(payload, tab_key=tab_name.lower())
             if groups:
                 render_imminent_from_groups(groups, tab_key=tab_name.lower())
             else:

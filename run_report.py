@@ -24,6 +24,7 @@ load_dotenv()
 DATA_DIR = Path(__file__).parent / "data"
 WEEKLY_DIR = DATA_DIR / "weekly_reports"
 XLSX_BASE_DIR = DATA_DIR / "xlsx"
+NOTES_BASE_DIR = DATA_DIR / "notes"
 REPORTS = {
     "SCRT2 milestones": "00OEE000002tild2AA",
     "VegamDB milestones": "00OEE000002tu8T2AQ",
@@ -248,6 +249,40 @@ def detect_week_excel_files(week_label: str, xlsx_base_dir: Path) -> Dict[str, O
         if ("vegamdb" in name or "vega" in name) and discovered["VegamDB milestones"] is None:
             discovered["VegamDB milestones"] = str(path)
     return discovered
+
+
+def parse_notes_file(path: Path) -> List[Dict[str, str]]:
+    if not path.exists():
+        return []
+    content = path.read_text(encoding="utf-8").strip()
+    if not content:
+        return []
+    rows: List[Dict[str, str]] = []
+    for line in content.splitlines():
+        text = line.strip()
+        if not text or text.startswith("#"):
+            continue
+        parts = [p.strip() for p in text.split("|")]
+        if len(parts) < 5:
+            continue
+        rows.append(
+            {
+                "priority_or_severity": parts[0],
+                "owner": parts[1],
+                "due": parts[2],
+                "status": parts[3],
+                "summary": parts[4],
+            }
+        )
+    return rows
+
+
+def load_week_notes(week_label: str, tab_label: str) -> Dict[str, List[Dict[str, str]]]:
+    folder = "SCRT2" if "SCRT2" in tab_label else "VegamDB"
+    notes_dir = NOTES_BASE_DIR / week_label / folder
+    risks = parse_notes_file(notes_dir / "Risks.txt")
+    actions = parse_notes_file(notes_dir / "ActionItems.txt")
+    return {"risks": risks, "action_items": actions}
 
 
 def summarize_tab(rows: List[Dict[str, Any]], label: str) -> Dict[str, Any]:
@@ -642,6 +677,7 @@ def generate_weekly_report(
         ranged_rows = filter_rows_by_milestone_window(rows, days_back=10, days_forward=90)
         context = build_tab_context(ranged_rows if ranged_rows else rows, label)
         milestone_groups = build_milestone_groups(rows)
+        notes = load_week_notes(resolved_week_label, label)
         tab_summaries.append(summary)
         tab_contexts.append(context)
         tabs_payload[label] = {
@@ -651,7 +687,10 @@ def generate_weekly_report(
                 **summary,
                 "grouped_by_milestone": milestone_groups,
                 "milestones": [g["milestone"] for g in milestone_groups],
+                "risks_count": len(notes["risks"]),
+                "action_items_count": len(notes["action_items"]),
             },
+            "notes": notes,
             "source": source,
         }
 

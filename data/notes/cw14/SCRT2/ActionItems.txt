@@ -1,0 +1,2 @@
+P1 | Nithya | 2026-04-07 | Open | Define acceptance tests as exit criteria for SCRT2/ZOS as part of their 4/30 deliverable
+P2 | Roy | 2026-04-09 | Open | Understanding CTS requirements for ZOS
