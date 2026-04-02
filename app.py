@@ -164,7 +164,13 @@ def render_weekly_status(snapshot: Dict[str, Any]) -> None:
     ws = snapshot.get("weekly_status", {}) or {}
     headline = str(ws.get("headline", "")).strip() or "Executive Weekly Status"
     summary = str(ws.get("summary", "")).strip()
+    week_key = str(snapshot.get("week_key", "")).strip()
+    week_announcement = "📣 Weekly update for SCRT2 and VegamDB on SDB"
+    if week_key:
+        week_announcement = f"{week_announcement} ({week_key})"
     if summary:
+        # Normalize any markdown-style heading for weekly update.
+        summary = re.sub(r"(?im)^#{1,3}\s*Weekly update for.*$", "", summary).strip()
         goal_label = "<span style='color:#1e3a8a; font-weight:700;'>Goal:</span>"
         status_label = "<span style='color:#1e3a8a; font-weight:700;'>Status:</span>"
         progress_label = "<span style='color:#1e3a8a; font-weight:700;'>Progress:</span>"
@@ -173,7 +179,8 @@ def render_weekly_status(snapshot: Dict[str, Any]) -> None:
         summary = re.sub(r"(?im)^(\s*-\s*)?status\s*:\s*", rf"- {status_label} ", summary)
         summary = re.sub(r"(?im)^(\s*-\s*)?progress\s*:\s*", rf"- {progress_label} ", summary)
         summary = re.sub(r"(?im)^(\s*-\s*)?next\s*:\s*", rf"- {next_label} ", summary)
-    st.markdown(f"### {headline}")
+    st.markdown(f"### {week_announcement}")
+    st.markdown(f"#### {headline}")
     if summary:
         st.markdown(summary, unsafe_allow_html=True)
     else:
