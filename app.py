@@ -160,6 +160,26 @@ def render_narrative(snapshot: Dict[str, Any]) -> None:
     return
 
 
+def render_weekly_status(snapshot: Dict[str, Any]) -> None:
+    ws = snapshot.get("weekly_status", {}) or {}
+    headline = str(ws.get("headline", "")).strip() or "Executive Weekly Status"
+    summary = str(ws.get("summary", "")).strip()
+    if summary:
+        goal_label = "<span style='color:#1e3a8a; font-weight:700;'>Goal:</span>"
+        status_label = "<span style='color:#1e3a8a; font-weight:700;'>Status:</span>"
+        progress_label = "<span style='color:#1e3a8a; font-weight:700;'>Progress:</span>"
+        next_label = "<span style='color:#1e3a8a; font-weight:700;'>Next:</span>"
+        summary = re.sub(r"(?im)^(\s*-\s*)?goal\s*:\s*", rf"- {goal_label} ", summary)
+        summary = re.sub(r"(?im)^(\s*-\s*)?status\s*:\s*", rf"- {status_label} ", summary)
+        summary = re.sub(r"(?im)^(\s*-\s*)?progress\s*:\s*", rf"- {progress_label} ", summary)
+        summary = re.sub(r"(?im)^(\s*-\s*)?next\s*:\s*", rf"- {next_label} ", summary)
+    st.markdown(f"### {headline}")
+    if summary:
+        st.markdown(summary, unsafe_allow_html=True)
+    else:
+        st.info("Weekly status is not available for this snapshot yet. Re-run `run_report.sh`.")
+
+
 def parse_milestone_date(value: str) -> Optional[datetime]:
     text = str(value or "")
     match = re.search(r"(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?", text)
@@ -206,62 +226,74 @@ def select_most_imminent_milestone(df: pd.DataFrame) -> Optional[str]:
     return sorted(without_date)[0]
 
 
+def select_imminent_and_previous_milestones(df: pd.DataFrame) -> List[str]:
+    if "Milestone" not in df.columns:
+        return []
+    milestones = [m for m in df["Milestone"].dropna().astype(str).unique().tolist() if m.strip()]
+    if not milestones:
+        return []
+
+    dated: List[tuple[datetime, str]] = []
+    undated: List[str] = []
+    for milestone in milestones:
+        parsed = parse_milestone_date(milestone)
+        if parsed:
+            dated.append((parsed, milestone))
+        else:
+            undated.append(milestone)
+
+    if not dated:
+        return sorted(undated)[:2]
+
+    dated.sort(key=lambda x: x[0])
+    today = datetime.now()
+
+    # Most imminent: nearest upcoming, else nearest recent past
+    upcoming_idx = None
+    for i, (d, _) in enumerate(dated):
+        if d.date() >= today.date():
+            upcoming_idx = i
+            break
+    if upcoming_idx is not None:
+        imminent_idx = upcoming_idx
+    else:
+        imminent_idx = len(dated) - 1
+
+    selected = [dated[imminent_idx][1]]
+    if imminent_idx - 1 >= 0:
+        selected.append(dated[imminent_idx - 1][1])
+    elif imminent_idx + 1 < len(dated):
+        selected.append(dated[imminent_idx + 1][1])
+
+    if len(selected) < 2 and undated:
+        for m in sorted(undated):
+            if m not in selected:
+                selected.append(m)
+                if len(selected) == 2:
+                    break
+    return selected[:2]
+
+
 def render_imminent_milestone(df: pd.DataFrame, tab_key: str) -> None:
-    milestone = select_most_imminent_milestone(df)
-    if not milestone:
+    milestone_list = select_imminent_and_previous_milestones(df)
+    if not milestone_list:
         st.warning("No milestone value found in this tab.")
         return
 
-    st.markdown(
-        '<div style="font-size:1.5rem;font-weight:800;color:#1e3a8a;margin:10px 0 8px 0;">Most Imminent Milestone</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div style="font-size:1.1rem;font-weight:600;color:#0f766e;margin:0 0 10px 0;">{milestone}</div>',
-        unsafe_allow_html=True,
-    )
-
-    subset = df[df["Milestone"].astype(str) == milestone].copy()
-    required_cols = ["Epic Name", "Status", "Epic Health Comment"]
-    keep_cols = [c for c in required_cols if c in subset.columns]
-    if len(keep_cols) < 3:
-        st.warning("Required columns are missing for epic list display.")
-        return
-
-    st.markdown(
-        '<div style="font-size:1.1rem;font-weight:600;color:#0f766e;margin:0 0 10px 0;">Epics for this milestone</div>',
-        unsafe_allow_html=True,
-    )
-    status_options = sorted([s for s in subset["Status"].dropna().unique().tolist() if str(s).strip() != ""]) if "Status" in subset.columns else []
-    selected_status = st.multiselect(
-        "Filter Status",
-        status_options,
-        default=status_options,
-        key=f"status_{tab_key}",
-    ) if status_options else []
-    if selected_status and "Status" in subset.columns:
-        subset = subset[subset["Status"].isin(selected_status)]
-
-    extra_cols = [c for c in ["Team", "Owner", "% Complete"] if c in subset.columns]
-    table = subset[keep_cols + extra_cols].copy().rename(
-        columns={
-            "Status": "Health Status",
-            "Epic Health Comment": "Last Comment",
-            "% Complete": "% of Work Items Complete",
-        }
-    )
-    if "Last Comment" in table.columns:
-        table["Last Comment"] = (
-            table["Last Comment"]
-            .fillna("")
-            .astype(str)
-            .str.replace("\\\\r\\\\n", "<br>", regex=False)
-            .str.replace("\\\\n", "<br>", regex=False)
-            .str.replace("\r\n", "<br>", regex=False)
-            .str.replace("\n", "<br>", regex=False)
+    for idx, milestone in enumerate(milestone_list):
+        header = "Most Imminent Milestone" if idx == 0 else "Previous Milestone"
+        st.markdown(
+            f'<div style="font-size:1.5rem;font-weight:800;color:#1e3a8a;margin:10px 0 8px 0;">{header}</div>',
+            unsafe_allow_html=True,
         )
-    render_status_colored_table(table)
-    st.caption(f"Showing {len(subset)} epics for milestone")
+        st.markdown(
+            f'<div style="font-size:1.1rem;font-weight:600;color:#0f766e;margin:0 0 10px 0;">{milestone}</div>',
+            unsafe_allow_html=True,
+        )
+
+        subset = df[df["Milestone"].astype(str) == milestone].copy()
+        render_milestone_epics_table(subset, f"{tab_key}_imminent_{idx}")
+
     render_all_milestones_from_df(df, tab_key)
 
 
@@ -289,68 +321,65 @@ def select_imminent_group(groups: List[Dict[str, Any]]) -> Optional[Dict[str, An
     return ranked[0][2] if ranked else None
 
 
+def select_imminent_and_previous_groups(groups: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    if not groups:
+        return []
+    dated: List[tuple[datetime, Dict[str, Any]]] = []
+    undated: List[Dict[str, Any]] = []
+    for g in groups:
+        milestone_date = g.get("milestone_date")
+        if milestone_date:
+            try:
+                d = datetime.strptime(str(milestone_date), "%Y-%m-%d")
+                dated.append((d, g))
+                continue
+            except ValueError:
+                pass
+        undated.append(g)
+
+    if not dated:
+        return undated[:2]
+
+    dated.sort(key=lambda x: x[0])
+    today = datetime.now()
+    upcoming_idx = None
+    for i, (d, _) in enumerate(dated):
+        if d.date() >= today.date():
+            upcoming_idx = i
+            break
+    imminent_idx = upcoming_idx if upcoming_idx is not None else len(dated) - 1
+    selected = [dated[imminent_idx][1]]
+    if imminent_idx - 1 >= 0:
+        selected.append(dated[imminent_idx - 1][1])
+    elif imminent_idx + 1 < len(dated):
+        selected.append(dated[imminent_idx + 1][1])
+    return selected[:2]
+
+
 def render_imminent_from_groups(groups: List[Dict[str, Any]], tab_key: str) -> None:
-    group = select_imminent_group(groups)
-    if not group:
+    selected_groups = select_imminent_and_previous_groups(groups)
+    if not selected_groups:
         st.warning("No milestone groups available in metadata.")
         return
 
-    milestone = str(group.get("milestone", "")).strip() or "Unspecified"
-    st.markdown(
-        '<div style="font-size:1.5rem;font-weight:800;color:#1e3a8a;margin:10px 0 8px 0;">Most Imminent Milestone</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div style="font-size:1.1rem;font-weight:600;color:#0f766e;margin:0 0 10px 0;">{milestone}</div>',
-        unsafe_allow_html=True,
-    )
-
-    epics = group.get("epics", []) or []
-    subset = pd.DataFrame(epics)
-    if subset.empty:
-        st.warning("No epics found for this milestone group.")
-        return
-
-    required_cols = ["Epic Name", "Status", "Epic Health Comment"]
-    keep_cols = [c for c in required_cols if c in subset.columns]
-    if len(keep_cols) < 3:
-        st.warning("Required columns are missing for epic list display.")
-        return
-
-    st.markdown(
-        '<div style="font-size:1.1rem;font-weight:600;color:#0f766e;margin:0 0 10px 0;">Epics for this milestone</div>',
-        unsafe_allow_html=True,
-    )
-    status_options = sorted([s for s in subset["Status"].dropna().unique().tolist() if str(s).strip() != ""]) if "Status" in subset.columns else []
-    selected_status = st.multiselect(
-        "Filter Status",
-        status_options,
-        default=status_options,
-        key=f"status_{tab_key}",
-    ) if status_options else []
-    if selected_status and "Status" in subset.columns:
-        subset = subset[subset["Status"].isin(selected_status)]
-
-    extra_cols = [c for c in ["Team", "Owner", "% Complete"] if c in subset.columns]
-    table = subset[keep_cols + extra_cols].copy().rename(
-        columns={
-            "Status": "Health Status",
-            "Epic Health Comment": "Last Comment",
-            "% Complete": "% of Work Items Complete",
-        }
-    )
-    if "Last Comment" in table.columns:
-        table["Last Comment"] = (
-            table["Last Comment"]
-            .fillna("")
-            .astype(str)
-            .str.replace("\\\\r\\\\n", "<br>", regex=False)
-            .str.replace("\\\\n", "<br>", regex=False)
-            .str.replace("\r\n", "<br>", regex=False)
-            .str.replace("\n", "<br>", regex=False)
+    for idx, group in enumerate(selected_groups):
+        milestone = str(group.get("milestone", "")).strip() or "Unspecified"
+        header = "Most Imminent Milestone" if idx == 0 else "Previous Milestone"
+        st.markdown(
+            f'<div style="font-size:1.5rem;font-weight:800;color:#1e3a8a;margin:10px 0 8px 0;">{header}</div>',
+            unsafe_allow_html=True,
         )
-    render_status_colored_table(table)
-    st.caption(f"Showing {len(subset)} epics for milestone")
+        st.markdown(
+            f'<div style="font-size:1.1rem;font-weight:600;color:#0f766e;margin:0 0 10px 0;">{milestone}</div>',
+            unsafe_allow_html=True,
+        )
+        epics = group.get("epics", []) or []
+        subset = pd.DataFrame(epics)
+        if subset.empty:
+            st.caption("No epics found for this milestone group.")
+            continue
+        render_milestone_epics_table(subset, f"{tab_key}_imminent_{idx}")
+
     render_all_milestones_from_groups(groups, tab_key)
 
 
@@ -577,11 +606,14 @@ def main() -> None:
     render_narrative(snapshot)
 
     tabs_data = snapshot.get("tabs", {})
-    tab_names = ["SCRT2", "VegamDB"]
+    tab_names = ["SCRT2", "VegamDB", "Weekly Status"]
     tab_to_key = {"SCRT2": "SCRT2 milestones", "VegamDB": "VegamDB milestones"}
     tabs = st.tabs(tab_names)
     for tab, tab_name in zip(tabs, tab_names):
         with tab:
+            if tab_name == "Weekly Status":
+                render_weekly_status(snapshot)
+                continue
             payload = tabs_data.get(tab_to_key[tab_name], {})
             metadata = payload.get("metadata", {}) or {}
             groups = metadata.get("grouped_by_milestone", []) or []

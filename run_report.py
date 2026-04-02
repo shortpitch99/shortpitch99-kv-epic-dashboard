@@ -229,6 +229,11 @@ def current_week_key(now: datetime) -> str:
     return f"{iso.year}-W{iso.week:02d}"
 
 
+def week_start_date(now: datetime) -> str:
+    monday = now - pd.Timedelta(days=now.weekday())
+    return monday.strftime("%Y-%m-%d")
+
+
 def current_cw_label(now: datetime) -> str:
     return f"cw{now.isocalendar().week:02d}"
 
@@ -627,6 +632,122 @@ class KVNarrativeGenerator:
                     raise RuntimeError("LLM response missing choices")
                 return choices[0]["message"]["content"]
 
+    def generate_weekly_status_update(
+        self,
+        week_key: str,
+        rows_by_program: Dict[str, List[Dict[str, Any]]],
+    ) -> Dict[str, str]:
+        if not self.api_key:
+            return self._fallback_weekly_status(rows_by_program)
+        try:
+            return self._call_llm_weekly_status(week_key, rows_by_program)
+        except Exception as e:
+            print(f"⚠️ Weekly status LLM failed, using fallback. Error: {e}")
+            return self._fallback_weekly_status(rows_by_program)
+
+    def _fallback_weekly_status(self, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, str]:
+        def summarize_program(program: str, rows: List[Dict[str, Any]]) -> str:
+            status_counts: Dict[str, int] = {}
+            watch_or_blocked = 0
+            for r in rows:
+                s = normalize_text(r.get("Status", "")) or "Unknown"
+                status_counts[s] = status_counts.get(s, 0) + 1
+                sl = s.lower()
+                if "watch" in sl or "blocked" in sl:
+                    watch_or_blocked += 1
+            top_status = sorted(status_counts.items(), key=lambda x: x[1], reverse=True)[:3]
+            status_text = ", ".join([f"{k}({v})" for k, v in top_status]) if top_status else "No status data"
+            return (
+                f"#### {program}\n"
+                f"- Goal: Maintain milestone execution and delivery confidence.\n"
+                f"- Status: {'🟡 Watch' if watch_or_blocked > 0 else '🟢 On Track'}.\n"
+                f"- Progress: Total epics in scope are {len(rows)}.\n"
+                f"- Progress: Current status mix is {status_text}.\n"
+                f"- Next: Continue near-term milestone execution.\n"
+                f"- Next: Close watch/blocked items and validate schedule confidence.\n"
+            )
+
+        overall_watch = sum(
+            1
+            for rows in rows_by_program.values()
+            for r in rows
+            if "watch" in normalize_text(r.get("Status", "")).lower() or "blocked" in normalize_text(r.get("Status", "")).lower()
+        )
+        executive = (
+            "## Weekly update for SCRT2 and VegamDB on SDB for the week of "
+            f"{week_start_date(datetime.now())}\n\n"
+            "### Executive Summary\n"
+            f"- Status: {'🟡 Watch' if overall_watch else '🟢 On Track'}.\n"
+            "- Program execution is generally on track across workstreams.\n"
+            "- The main focus is managing watch/blocked dependencies while sustaining delivery momentum.\n\n"
+            "### Overview\n"
+            "- Overall the program is progressing with teams anchored in development and integration activities.\n"
+            "- Workstream execution is concentrated across VegamDB, SDB KV API, and SCRT2 tracks.\n"
+            "- Most tracks are stable, with watch items highlighted below.\n\n"
+            "### Highlights by Workstream\n"
+            + "\n\n".join([summarize_program(p, rows) for p, rows in rows_by_program.items()])
+            + "\n\n### Watch Item(s)\n"
+            + ("- Watch/blocked items are present and require active mitigation.\n" if overall_watch else "- No material watch items this week.\n")
+        )
+        return {"headline": "Executive Weekly Status", "summary": executive}
+
+    def _call_llm_weekly_status(self, week_key: str, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, str]:
+        compact_rows: Dict[str, List[Dict[str, str]]] = {}
+        for program, rows in rows_by_program.items():
+            compact_rows[program] = [
+                {
+                    "Epic Name": normalize_text(r.get("Epic Name", "")),
+                    "Status": normalize_text(r.get("Status", "")),
+                    "Comment": normalize_text(r.get("Epic Health Comment", "")),
+                    "Team": normalize_text(r.get("Team", "")),
+                    "Milestone": normalize_text(r.get("Milestone", "")),
+                }
+                for r in rows[:200]
+            ]
+        prompt = (
+            "Create an executive weekly status update for SCRT2 and VegamDB. "
+            "Use Status and Epic Health Comment to summarize health, notable progress, risks, and immediate next-focus areas.\n\n"
+            "Output format requirements (use this template style):\n"
+            "1) Heading: '## Weekly update for SCRT2 and VegamDB on SDB for the week of <YYYY-MM-DD>'\n"
+            "2) Subheader: '### Executive Summary' with bullet lines\n"
+            "3) Subheader: '### Overview' with bullet lines\n"
+            "4) Subheader: '### Highlights by Workstream'\n"
+            "   - Include explicit workstream blocks with headings like '#### VegamDB Pilot', '#### SDB KV API', '#### SCRT2 on SDB'\n"
+            "   - For each block include bullet lines for Goal, Status, Progress, and Next\n"
+            "5) Subheader: '### Watch Item(s)' with bullet lines\n"
+            "6) Every sentence should be a separate bullet item beginning with '- '.\n"
+            "7) Keep concise, factual, and executive tone (similar to PM update style).\n\n"
+            "Important constraints:\n"
+            "- Focus on where work is happening across KV API, CDC, Sharding, and GSI for SCRT2 where evidence exists.\n"
+            "- For VegamDB emphasize development vs deployment execution.\n"
+            "- Do not fabricate dates or milestones not present in input.\n\n"
+            "Return strict JSON with keys: headline, summary.\n\n"
+            f"Week: {week_key}\n"
+            f"Week start date (Monday): {week_start_date(datetime.now())}\n"
+            f"Program data:\n{json.dumps(compact_rows, indent=2)}"
+        )
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        payload: Dict[str, Any] = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": "Return valid JSON only."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.2,
+        }
+        if self.openai_user_id:
+            payload["user"] = self.openai_user_id
+        content = self._call_llm_sync(payload, headers)
+        cleaned = content.strip()
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r"^```[a-zA-Z]*\n?", "", cleaned)
+            cleaned = re.sub(r"\n?```$", "", cleaned).strip()
+        parsed = json.loads(cleaned)
+        return {
+            "headline": normalize_text(parsed.get("headline", "Executive Weekly Status")),
+            "summary": normalize_text(parsed.get("summary", "")),
+        }
+
 
 def save_weekly_bundle(bundle: Dict[str, Any]) -> Path:
     WEEKLY_DIR.mkdir(parents=True, exist_ok=True)
@@ -697,6 +818,11 @@ def generate_weekly_report(
     week_key = current_week_key(now)
     previous_tab_narratives = load_previous_tab_narratives(week_key)
     narrative = KVNarrativeGenerator().generate(week_key, tab_summaries, tab_contexts, previous_tab_narratives)
+    rows_by_program = {
+        "SCRT2": tabs_payload.get("SCRT2 milestones", {}).get("rows", []),
+        "VegamDB": tabs_payload.get("VegamDB milestones", {}).get("rows", []),
+    }
+    weekly_status = KVNarrativeGenerator().generate_weekly_status_update(week_key, rows_by_program)
     for label in REPORTS:
         tabs_payload[label]["narrative"] = narrative.get("tab_narratives", {}).get(label, "")
 
@@ -719,6 +845,7 @@ def generate_weekly_report(
             "headline": narrative.get("headline", ""),
             "overall_summary": narrative.get("overall_summary", ""),
         },
+        "weekly_status": weekly_status,
         "tabs": tabs_payload,
     }
     return save_weekly_bundle(bundle)
