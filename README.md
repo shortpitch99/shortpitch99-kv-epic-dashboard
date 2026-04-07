@@ -78,7 +78,9 @@ Launch dashboard:
 - creates `.venv` and installs dependencies
 - loads `KV/.env` if present
 - falls back to `/Users/rchowdhuri/QC/.env` for Salesforce auth only (LLM keys are never read from QC)
-- calls `run_report.py` to save `data/weekly_reports/weekly_report_<week>_<timestamp>.json`
+- calls `run_report.py` to save `data/weekly_reports/weekly_report_<iso_week>_<timestamp>.json` and `data/weekly_reports/latest.json`
+- mirrors the same timestamped file plus `latest.json` into `cloud_reports/` (for Streamlit Community Cloud); older `cloud_reports/weekly_report_<same_iso_week>_*.json` files for that week are removed so you only commit one snapshot per ISO week
+- commit and push `cloud_reports/` when you want the hosted app updated
 - accepts passthrough args such as `--scrt2-xlsx` and `--vegamdb-xlsx`
 - supports `--week cwNN` and auto-reads `data/xlsx/cwNN/*.xlsx`
 

@@ -8,6 +8,7 @@ import asyncio
 import json
 import os
 import re
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -23,6 +24,7 @@ load_dotenv()
 
 DATA_DIR = Path(__file__).parent / "data"
 WEEKLY_DIR = DATA_DIR / "weekly_reports"
+CLOUD_REPORTS_DIR = Path(__file__).parent / "cloud_reports"
 XLSX_BASE_DIR = DATA_DIR / "xlsx"
 NOTES_BASE_DIR = DATA_DIR / "notes"
 REPORTS = {
@@ -769,8 +771,19 @@ def save_weekly_bundle(bundle: Dict[str, Any]) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = WEEKLY_DIR / f"weekly_report_{week_key}_{timestamp}.json"
     latest = WEEKLY_DIR / "latest.json"
-    path.write_text(json.dumps(bundle, indent=2), encoding="utf-8")
-    latest.write_text(json.dumps(bundle, indent=2), encoding="utf-8")
+    body = json.dumps(bundle, indent=2)
+    path.write_text(body, encoding="utf-8")
+    latest.write_text(body, encoding="utf-8")
+
+    CLOUD_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    for old in CLOUD_REPORTS_DIR.glob(f"weekly_report_{week_key}_*.json"):
+        if old.name != path.name:
+            try:
+                old.unlink()
+            except OSError:
+                pass
+    shutil.copy2(path, CLOUD_REPORTS_DIR / path.name)
+    shutil.copy2(latest, CLOUD_REPORTS_DIR / "latest.json")
     return path
 
 
@@ -906,6 +919,7 @@ def main() -> int:
         xlsx_base_dir=xlsx_base_dir,
     )
     print(f"Saved weekly report: {path}")
+    print(f"Synced to {CLOUD_REPORTS_DIR.name}/ (commit and push to refresh Streamlit Cloud).")
     return 0
 
 
