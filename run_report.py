@@ -636,7 +636,7 @@ class KVNarrativeGenerator:
         self,
         week_key: str,
         rows_by_program: Dict[str, List[Dict[str, Any]]],
-    ) -> Dict[str, str]:
+    ) -> Dict[str, Any]:
         if not self.api_key:
             return self._fallback_weekly_status(rows_by_program)
         try:
@@ -645,7 +645,9 @@ class KVNarrativeGenerator:
             print(f"⚠️ Weekly status LLM failed, using fallback. Error: {e}")
             return self._fallback_weekly_status(rows_by_program)
 
-    def _fallback_weekly_status(self, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, str]:
+    def _fallback_weekly_status(self, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
+        workstream_statuses: List[Dict[str, str]] = []
+
         def summarize_program(program: str, rows: List[Dict[str, Any]]) -> str:
             status_counts: Dict[str, int] = {}
             watch_or_blocked = 0
@@ -657,6 +659,8 @@ class KVNarrativeGenerator:
                     watch_or_blocked += 1
             top_status = sorted(status_counts.items(), key=lambda x: x[1], reverse=True)[:3]
             status_text = ", ".join([f"{k}({v})" for k, v in top_status]) if top_status else "No status data"
+            color = "yellow" if watch_or_blocked > 0 else "green"
+            workstream_statuses.append({"name": program, "color": color})
             return (
                 f"#### {program}\n"
                 f"- Goal: Maintain milestone execution and delivery confidence.\n"
@@ -689,9 +693,15 @@ class KVNarrativeGenerator:
             + "\n\n### Watch Item(s)\n"
             + ("- Watch/blocked items are present and require active mitigation.\n" if overall_watch else "- No material watch items this week.\n")
         )
-        return {"headline": "Executive Weekly Status", "summary": executive}
+        executive_color = "yellow" if overall_watch else "green"
+        return {
+            "headline": "Executive Weekly Status",
+            "summary": executive,
+            "executive_color": executive_color,
+            "workstream_statuses": workstream_statuses,
+        }
 
-    def _call_llm_weekly_status(self, week_key: str, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, str]:
+    def _call_llm_weekly_status(self, week_key: str, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
         compact_rows: Dict[str, List[Dict[str, str]]] = {}
         for program, rows in rows_by_program.items():
             compact_rows[program] = [
@@ -721,7 +731,9 @@ class KVNarrativeGenerator:
             "- Focus on where work is happening across KV API, CDC, Sharding, and GSI for SCRT2 where evidence exists.\n"
             "- For VegamDB emphasize development vs deployment execution.\n"
             "- Do not fabricate dates or milestones not present in input.\n\n"
-            "Return strict JSON with keys: headline, summary.\n\n"
+            "Return strict JSON with keys: headline, summary, executive_color, workstream_statuses.\n"
+            "Where executive_color is one of red|yellow|green.\n"
+            "workstream_statuses is an array of objects: {\"name\": \"<workstream>\", \"color\": \"red|yellow|green\"}.\n\n"
             f"Week: {week_key}\n"
             f"Week start date (Monday): {week_start_date(datetime.now())}\n"
             f"Program data:\n{json.dumps(compact_rows, indent=2)}"
@@ -746,6 +758,8 @@ class KVNarrativeGenerator:
         return {
             "headline": normalize_text(parsed.get("headline", "Executive Weekly Status")),
             "summary": normalize_text(parsed.get("summary", "")),
+            "executive_color": normalize_text(parsed.get("executive_color", "green")).lower() or "green",
+            "workstream_statuses": parsed.get("workstream_statuses", []) if isinstance(parsed.get("workstream_statuses", []), list) else [],
         }
 
 

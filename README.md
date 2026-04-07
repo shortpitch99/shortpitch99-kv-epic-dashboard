@@ -77,13 +77,11 @@ Launch dashboard:
 `run_report.sh`:
 - creates `.venv` and installs dependencies
 - loads `KV/.env` if present
-- falls back to `/Users/rchowdhuri/QC/.env` for Salesforce auth variables
+- falls back to `/Users/rchowdhuri/QC/.env` for Salesforce auth only (LLM keys are never read from QC)
 - calls `run_report.py` to save `data/weekly_reports/weekly_report_<week>_<timestamp>.json`
 - accepts passthrough args such as `--scrt2-xlsx` and `--vegamdb-xlsx`
 - supports `--week cwNN` and auto-reads `data/xlsx/cwNN/*.xlsx`
 
-LLM narrative uses:
+LLM narrative uses (set in `KV/.env`, your environment, or Streamlit Cloud secrets — not from QC):
 - `LLM_GW_EXPRESS_KEY` (required for LLM narrative; fallback summary is used if missing)
 - `OPENAI_USER_ID` (optional)
-# shortpitch99-kv-epic-dashboard
-# shortpitch99-kv-epic-dashboard

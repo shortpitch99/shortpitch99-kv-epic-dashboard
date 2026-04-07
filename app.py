@@ -35,6 +35,11 @@ REPORTS = {
     "VegamDB milestones": "00OEE000002tu8T2AQ",
 }
 
+# weekly_report_{iso_week}_{YYYYMMDD}_{HHMMSS}.json — multiple runs share the same iso_week.
+REPORT_FILENAME_RE = re.compile(
+    r"^weekly_report_(?P<wk>.+?)_(?P<d8>\d{8})_(?P<hms>\d{6})\.json$"
+)
+
 
 def get_banner_image_src() -> str:
     local_path = next((p for p in HEADER_IMAGE_PATHS if p.exists()), None)
@@ -99,17 +104,79 @@ def current_week_key(now: datetime) -> str:
     return f"{iso.year}-W{iso.week:02d}"
 
 
+def parse_weekly_report_filename(path: Path) -> Optional[tuple[str, tuple[str, str]]]:
+    m = REPORT_FILENAME_RE.match(path.name)
+    if not m:
+        return None
+    return (m.group("wk"), (m.group("d8"), m.group("hms")))
+
+
+def _is_newer_weekly_snapshot(a: Path, b: Path) -> bool:
+    """True if a should replace b for the same ISO week_key (newer run or local wins ties)."""
+    pa, pb = parse_weekly_report_filename(a), parse_weekly_report_filename(b)
+    if not pa:
+        return False
+    if not pb:
+        return True
+    _, ta = pa
+    _, tb = pb
+    if ta != tb:
+        return ta > tb
+    if a.parent == WEEKLY_DIR and b.parent != WEEKLY_DIR:
+        return True
+    return False
+
+
+def _report_choice_sort_key(path: Path) -> tuple:
+    parsed = parse_weekly_report_filename(path)
+    if parsed:
+        wk, (d8, hms) = parsed
+        return (0, wk, d8, hms)
+    return (1, path.name, "", "")
+
+
 def list_weekly_reports() -> List[Path]:
     WEEKLY_DIR.mkdir(parents=True, exist_ok=True)
     files = sorted(WEEKLY_DIR.glob("weekly_report_*.json"), reverse=True)
     if CLOUD_WEEKLY_DIR.exists():
         files.extend(sorted(CLOUD_WEEKLY_DIR.glob("weekly_report_*.json"), reverse=True))
-    # Deduplicate by filename, prefer local WEEKLY_DIR if both exist.
-    dedup: Dict[str, Path] = {}
+    # Same basename: keep one path (local and cloud can both hold identical filenames).
+    by_name: Dict[str, Path] = {}
     for path in files:
-        if path.name not in dedup:
-            dedup[path.name] = path
-    return sorted(dedup.values(), key=lambda p: p.name, reverse=True)
+        if path.name not in by_name:
+            by_name[path.name] = path
+    merged = list(by_name.values())
+
+    best_by_week: Dict[str, Path] = {}
+    extras: List[Path] = []
+    for path in merged:
+        parsed = parse_weekly_report_filename(path)
+        if not parsed:
+            extras.append(path)
+            continue
+        wk, _ = parsed
+        cur = best_by_week.get(wk)
+        if cur is None or _is_newer_weekly_snapshot(path, cur):
+            best_by_week[wk] = path
+
+    out = list(best_by_week.values()) + extras
+    return sorted(out, key=_report_choice_sort_key, reverse=True)
+
+
+def report_display_label(path: Path) -> str:
+    """Sidebar label: calendar week folder (cwNN) plus ISO week when present in JSON."""
+    data = load_report(path)
+    if data:
+        wk = str(data.get("week_key") or "").strip()
+        wl = str((data.get("metadata") or {}).get("week_label") or "").strip()
+        if wl and wk:
+            return f"{wl} · {wk}"
+        if wk:
+            return wk
+    parsed = parse_weekly_report_filename(path)
+    if parsed:
+        return parsed[0]
+    return path.stem.replace("weekly_report_", "")
 
 
 def load_report(path: Path) -> Optional[Dict[str, Any]]:
@@ -161,9 +228,66 @@ def render_narrative(snapshot: Dict[str, Any]) -> None:
 
 
 def render_weekly_status(snapshot: Dict[str, Any]) -> None:
+    def status_emoji_from_color(color: str) -> str:
+        c = (color or "").strip().lower()
+        if c == "red":
+            return "🔴"
+        if c == "yellow":
+            return "🟡"
+        return "🟢"
+
+    def add_heading_status_emojis(text: str, exec_color: str, workstream_colors: Dict[str, str]) -> str:
+        def infer_color_from_chunk(chunk: str) -> str:
+            t = chunk.lower()
+            if any(k in t for k in ["blocked", "critical", "sev0", "sev 0", "off track", "failing"]):
+                return "red"
+            if any(k in t for k in ["watch", "delayed", "slip", "risk", "at risk", "pending"]):
+                return "yellow"
+            return "green"
+
+        def lookup_workstream_color(name: str, chunk: str) -> str:
+            n = name.strip().lower()
+            # Exact and loose match against AI-provided workstream labels
+            for k, v in workstream_colors.items():
+                lk = k.strip().lower()
+                if lk == n or lk in n or n in lk:
+                    return v
+            return infer_color_from_chunk(chunk)
+
+        lines = text.splitlines()
+        out = lines[:]
+        heading_idxs = [
+            i for i, line in enumerate(lines)
+            if re.match(r"^\s*#{3,4}\s+", line)
+        ]
+        for pos, idx in enumerate(heading_idxs):
+            heading = lines[idx].strip()
+            next_idx = heading_idxs[pos + 1] if pos + 1 < len(heading_idxs) else len(lines)
+            chunk = "\n".join(lines[idx + 1:next_idx])
+            emoji = None
+            if heading.startswith("### Executive Summary"):
+                emoji = status_emoji_from_color(exec_color)
+            elif heading.startswith("#### "):
+                name = re.sub(r"^\s*####\s+", "", heading).strip()
+                emoji = status_emoji_from_color(lookup_workstream_color(name, chunk))
+            if not emoji:
+                continue
+            # Avoid double-prefixing if already present
+            if not re.search(r"^[#\s]+[🔴🟡🟢]\s", heading):
+                out[idx] = re.sub(r"^(#{3,4}\s+)", rf"\1{emoji} ", lines[idx], count=1)
+        return "\n".join(out)
+
     ws = snapshot.get("weekly_status", {}) or {}
     headline = str(ws.get("headline", "")).strip() or "Executive Weekly Status"
     summary = str(ws.get("summary", "")).strip()
+    executive_color = str(ws.get("executive_color", "green")).strip().lower() or "green"
+    workstream_colors = {}
+    for item in ws.get("workstream_statuses", []) or []:
+        if isinstance(item, dict):
+            name = str(item.get("name", "")).strip()
+            color = str(item.get("color", "")).strip().lower()
+            if name:
+                workstream_colors[name] = color or "green"
     week_key = str(snapshot.get("week_key", "")).strip()
     week_announcement = "📣 Weekly update for SCRT2 and VegamDB on SDB"
     if week_key:
@@ -179,6 +303,7 @@ def render_weekly_status(snapshot: Dict[str, Any]) -> None:
         summary = re.sub(r"(?im)^(\s*-\s*)?status\s*:\s*", rf"- {status_label} ", summary)
         summary = re.sub(r"(?im)^(\s*-\s*)?progress\s*:\s*", rf"- {progress_label} ", summary)
         summary = re.sub(r"(?im)^(\s*-\s*)?next\s*:\s*", rf"- {next_label} ", summary)
+        summary = add_heading_status_emojis(summary, executive_color, workstream_colors)
     st.markdown(f"### {week_announcement}")
     st.markdown(f"#### {headline}")
     if summary:
@@ -591,7 +716,7 @@ def main() -> None:
     snapshot: Optional[Dict[str, Any]] = None
 
     history = list_weekly_reports()
-    labels = [p.stem.replace("weekly_report_", "") for p in history]
+    labels = [report_display_label(p) for p in history]
     selected_path = None
     if labels:
         selected_label = st.sidebar.selectbox("Saved reports", labels, index=0)
