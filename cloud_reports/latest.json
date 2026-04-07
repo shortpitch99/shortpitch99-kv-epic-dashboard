@@ -1,6 +1,6 @@
 {
   "week_key": "2026-W15",
-  "generated_at": "2026-04-07 09:08:30",
+  "generated_at": "2026-04-07 09:38:47",
   "metadata": {
     "report_type": "kv_milestone_weekly",
     "source": "Mixed",
@@ -10,8 +10,8 @@
     },
     "week_label": "cw15",
     "inputs": {
-      "scrt2_xlsx": "/Users/rchowdhuri/KV/data/xlsx/cw15/SCRT2 Milestones-2026-04-07-09-04-09.xlsx",
-      "vegamdb_xlsx": "/Users/rchowdhuri/KV/data/xlsx/cw15/VegamDB Milestones-2026-04-07-09-04-34.xlsx",
+      "scrt2_xlsx": "/Users/rchowdhuri/KV/data/xlsx/cw15/SCRT2 Milestones-2026-04-07-09-37-47.xlsx",
+      "vegamdb_xlsx": "/Users/rchowdhuri/KV/data/xlsx/cw15/VegamDB Milestones-2026-04-07-09-38-12.xlsx",
       "xlsx_base_dir": "/Users/rchowdhuri/KV/data/xlsx"
     },
     "tab_summaries": [
@@ -34,12 +34,12 @@
     ]
   },
   "narrative": {
-    "headline": "SCRT2 advances through bootstrapping phase with 40% completion while VegamDB deployment work encounters early execution challenges",
-    "overall_summary": "SCRT2 maintains steady momentum across 32 epics with 6 teams, achieving 39.9% average completion and 89 remaining work items distributed across bootstrapping, core functionality, and feature completion milestones. VegamDB shows mixed signals with 66.7% completion but a Watch status epic creating deployment risk for the March 27th milestone."
+    "headline": "SCRT2 advances through M2.0 milestone with 32 active epics while VegamDB deployment work encounters early execution challenges",
+    "overall_summary": "SCRT2 maintains momentum across 6 teams with 39.9% average completion, though 89 remaining work items signal substantial effort ahead. VegamDB shows mixed signals with one completed development epic but deployment work flagged under Watch status, creating potential timeline pressure for the March 27th milestone."
   },
   "weekly_status": {
     "headline": "## Weekly update for SCRT2 and VegamDB on SDB for the week of 2026-04-06",
-    "summary": "### Executive Summary\n- SCRT2 M2.0 milestone delivered with core KV API foundation and ZOS bootstrapping capabilities complete\n- Strong progress on M3.0 features including CDC before/after image support and GSI index maintenance\n- VegamDB deployment blocked on infrastructure provisioning for pre-prod cells\n- Multiple workstreams advancing on schedule toward April 30th M3.0 completion\n\n### Overview\n- SCRT2 foundational components delivered including metadata schema, SQL generation, and basic CRUD operations\n- Active development on advanced KV API features (Query/Scan/Batch operations) and CDC integration\n- Sharding and GSI capabilities progressing with DDL integration and catalog changes\n- VegamDB facing deployment delays due to nodepool provisioning issues\n\n### Highlights by Workstream\n\n#### SCRT2 on SDB\n- Goal: Deliver complete KV API functionality with CDC, Sharding, and GSI support\n- Status: On Track for M3.0 (April 30th completion)\n- Progress: M2.0 milestone completed with ZOS bootstrapping, metadata schema, and foundational KV APIs delivered\n- Next: Complete Query/Scan/Batch operations, CDC before/after image integration, and sharding DDL implementation\n\n#### SDB KV API\n- Goal: Implement comprehensive KV API endpoints and advanced operations\n- Status: On Track\n- Progress: DDL and single CRUD operations completed, Update Expression support and Query/Scan operations in development\n- Next: Complete Query/Scan implementation, finalize Batch operations, and integrate CDC functionality\n\n#### VegamDB Pilot\n- Goal: Deploy VegamDB with KV API support in pre-production environment\n- Status: Watch (deployment blocked)\n- Progress: KV API integration completed and delivered to CDP RT team, min idle HW profile defined\n- Next: Resolve nodepool provisioning issues and complete pre-prod cell builds\n\n### Watch Item(s)\n- VegamDB pre-prod cell deployment blocked on r7i.2xlarge nodepool provisioning and SDB SC overrides\n- CDC integration dependencies between DbStream, mSDB, and SDB engine teams requiring coordination\n- Sharding DDL integration timeline dependency for mSDB integration by April 16th",
+    "summary": "### Executive Summary\n- SCRT2 M2.0 milestone successfully completed with core KV API, CDC, and sharding foundations delivered\n- Strong progress on M3.0 milestone with KV API enhancements, CDC before/after image support, and GSI runtime maintenance\n- VegamDB pilot deployment facing delays in pre-production cell provisioning\n- Key focus areas include completing KV API Query/Scan operations, CDC integration, and sharding DDL implementation\n\n### Overview\n- Multiple SCRT2 foundational components completed including metadata schema, SQL generation engine, and basic KV API endpoints\n- CDC capabilities advancing with single cell support delivered and before/after image functionality in progress\n- Sharding and GSI workstreams making steady progress on catalog changes and runtime operations\n- VegamDB deployment blocked on infrastructure provisioning issues\n\n### Highlights by Workstream\n\n#### SCRT2 on SDB\n- **Goal**: Deliver complete DynamoDB-compatible API on SDB with sharding, CDC, and GSI support\n- **Status**: On Track (Green)\n- **Progress**: M2.0 milestone completed with foundational KV API, metadata schema, and SQL generation engine delivered; M3.0 work progressing on Query/Scan operations, CDC before/after images, and GSI runtime maintenance\n- **Next**: Complete KV API Query/Scan implementation, finalize CDC integration with DbStream, deliver sharding DDL changes by 4/16\n\n#### SDB KV API\n- **Goal**: Implement DynamoDB-compatible REST API endpoints for SCRT2\n- **Status**: On Track (Green)\n- **Progress**: Core CRUD operations (GetItem, PutItem, DeleteItem, UpdateItem) and DDL operations (CreateTable, DescribeTable, ListTables, DeleteTable) completed; Update Expression sub-parsing in progress\n- **Next**: Complete Query and Scan operations (50% done), implement Batch operations, deliver Tenant Operations\n\n#### CDC\n- **Goal**: Provide change data capture functionality with before/after image support\n- **Status**: On Track (Green)\n- **Progress**: Single cell CDC without before/after images completed; before/after image functionality under code review; DbStream integration with SDB CDC API V2 started\n- **Next**: Merge before/after image changes, complete multi-session CDC support, finalize DbStream integration with mSDB\n\n#### Sharding\n- **Goal**: Enable horizontal scaling through data partitioning\n- **Status**: On Track (Green)\n- **Progress**: M2.0 catalog and DDL delivered to project branch; routing code completed pending integration testing; working on backward compatibility changes\n- **Next**: Complete mSDB DDL integration by 4/16, deliver backward compatibility DDL/catalog changes, advance shard orchestration functionality\n\n#### GSI\n- **Goal**: Support Global Secondary Index functionality\n- **Status**: On Track (Green)\n- **Progress**: Index maintenance at runtime code complete with basic tests; catalog and DDL changes ready for PR; concurrent index creation initial implementation done\n- **Next**: Submit catalog and DDL changes PR, complete concurrent index creation testing, begin planner changes work\n\n#### VegamDB Pilot\n- **Goal**: Deploy mSDB for Data Cloud team integration\n- **Status**: Watch (Yellow)\n- **Progress**: KV API support completed and delivered to CDP RT team; minimum idle hardware profile defined for dev and perf environments\n- **Next**: Resolve nodepool provisioning issues for r7i.2xlarge instances, complete SDB structured config overrides, finish pre-production cell builds\n\n### Watch Item(s)\n- VegamDB pre-production cell builds delayed due to pending nodepool provisioning and SDB structured config overrides\n- SCRT2 M3.0 milestone (4/30) has multiple concurrent workstreams requiring coordination between teams\n- Sharding DDL integration with mSDB has hard dependency on 4/16 delivery date",
     "executive_color": "green",
     "workstream_statuses": []
   },
@@ -137,7 +137,7 @@
           "Owner": "Bahdan Batsalenka",
           "Epic Name": "[DbStream] Deliver single cell CDC w/o before and after image for ZOS/SCRT2",
           "Epic ID": "a3QEE000002CDht",
-          "Status": "On Track",
+          "Status": "Completed",
           "Epic Health Comment": "4/6 (Dan): Partnered with mSDB to incorporate DbStream + Kafka in mSDB-in-a-box\r\n\r\n3/30: DBStream and Kafka will be configured separately in the container because ZOS is not testing CDC during this milestone. \r\n\r\nCompleted - documenting how to set up DBSt",
           "% Complete": 75.0,
           "Remaining Work Items": 2.0,
@@ -517,7 +517,7 @@
               },
               {
                 "Epic Name": "[DbStream] Deliver single cell CDC w/o before and after image for ZOS/SCRT2",
-                "Status": "On Track",
+                "Status": "Completed",
                 "Epic Health Comment": "4/6 (Dan): Partnered with mSDB to incorporate DbStream + Kafka in mSDB-in-a-box\r\n\r\n3/30: DBStream and Kafka will be configured separately in the container because ZOS is not testing CDC during this milestone. \r\n\r\nCompleted - documenting how to set up DBSt",
                 "Team": "Org Migration Core",
                 "Owner": "Bahdan Batsalenka",
@@ -839,8 +839,8 @@
           }
         ]
       },
-      "source": "Excel (SCRT2 Milestones-2026-04-07-09-04-09.xlsx)",
-      "narrative": "Six teams are driving 32 epics through sequential milestone phases, with Managed SDB delivering 14 epics at 32.1% completion and SDB Query Proc Execution advancing Sharding capabilities at 61.2% completion. KV API workstream maintains momentum with 32.7% completion across 13 epics, while Sharding operations progress through DDL and orchestration phases with 41.1% completion. CDC and Global Secondary Index workstreams require attention with lower completion rates and significant remaining work loads of 17 and 31 items respectively."
+      "source": "Excel (SCRT2 Milestones-2026-04-07-09-37-47.xlsx)",
+      "narrative": "Six teams are driving 32 epics with Managed SDB delivering the highest volume at 14 epics and SDB Query Proc Execution carrying significant Sharding complexity with 37 remaining items. KV API workstream maintains steady execution at 32.7% completion across 13 epics, while Sharding operations advance through DDL and orchestration phases with 60 outstanding work items. CDC core functionality and Global Secondary Index development both show measured progress at 26.2% and 33.3% completion respectively, with GSI concurrent index creation representing a key risk area at only 10% complete."
     },
     "VegamDB milestones": {
       "report_id": "00OEE000002tu8T2AQ",
@@ -969,8 +969,8 @@
           }
         ]
       },
-      "source": "Excel (VegamDB Milestones-2026-04-07-09-04-34.xlsx)",
-      "narrative": "Three teams are executing VegamDB initiatives with a critical Watch status epic in SDB LCM Foundation's pre-production cell builds creating deployment milestone risk. Development work shows completion with Managed SDB's KV API support finished, while deployment activities split between SDB LCM Foundation's infrastructure builds (Watch status, 0% complete) and SDB Performance's hardware profiling (On Track, 100% complete). The deployment workstream carries all remaining risk with 2 work items concentrated in the Watch status epic."
+      "source": "Excel (VegamDB Milestones-2026-04-07-09-38-12.xlsx)",
+      "narrative": "VegamDB presents a tale of two workstreams: development work achieved full completion through Managed SDB's KV API support, while deployment activities face execution headwinds. SDB LCM Foundation's pre-production cell builds remain at 0% completion under Watch status with 2 outstanding items, contrasting sharply with SDB Performance's completed hardware profile design work. The deployment workstream's 50% average masks underlying delivery risk as the March 27th milestone approaches."
     }
   }
 }
