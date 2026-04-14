@@ -8,7 +8,6 @@ import asyncio
 import json
 import os
 import re
-import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -766,12 +765,14 @@ class KVNarrativeGenerator:
 
 
 def save_weekly_bundle(bundle: Dict[str, Any]) -> Path:
+    """Write the same JSON to local weekly dir and cloud_reports/ (for Streamlit Community Cloud)."""
     WEEKLY_DIR.mkdir(parents=True, exist_ok=True)
     week_key = bundle["week_key"]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = WEEKLY_DIR / f"weekly_report_{week_key}_{timestamp}.json"
     latest = WEEKLY_DIR / "latest.json"
     body = json.dumps(bundle, indent=2)
+
     path.write_text(body, encoding="utf-8")
     latest.write_text(body, encoding="utf-8")
 
@@ -782,8 +783,15 @@ def save_weekly_bundle(bundle: Dict[str, Any]) -> Path:
                 old.unlink()
             except OSError:
                 pass
-    shutil.copy2(path, CLOUD_REPORTS_DIR / path.name)
-    shutil.copy2(latest, CLOUD_REPORTS_DIR / "latest.json")
+    cloud_snap = CLOUD_REPORTS_DIR / path.name
+    cloud_latest = CLOUD_REPORTS_DIR / "latest.json"
+    cloud_snap.write_text(body, encoding="utf-8")
+    cloud_latest.write_text(body, encoding="utf-8")
+
+    for p in (path, latest, cloud_snap, cloud_latest):
+        if not p.exists() or p.stat().st_size == 0:
+            raise RuntimeError(f"Weekly report write failed (empty or missing): {p}")
+
     return path
 
 
@@ -918,8 +926,15 @@ def main() -> int:
         week_label=week_label,
         xlsx_base_dir=xlsx_base_dir,
     )
-    print(f"Saved weekly report: {path}")
-    print(f"Synced to {CLOUD_REPORTS_DIR.name}/ (commit and push to refresh Streamlit Cloud).")
+    root = Path(__file__).resolve().parent
+    rel_local = path.relative_to(root)
+    rel_cloud_snap = (CLOUD_REPORTS_DIR / path.name).relative_to(root)
+    print(f"Saved weekly report: {rel_local}")
+    print("Also wrote the same JSON to:")
+    print(f"  • {root / 'data/weekly_reports/latest.json'}")
+    print(f"  • {root / rel_cloud_snap}")
+    print(f"  • {root / 'cloud_reports/latest.json'}")
+    print("Streamlit Cloud only sees files in the repo — run: git add cloud_reports && git commit && git push")
     return 0
 
 

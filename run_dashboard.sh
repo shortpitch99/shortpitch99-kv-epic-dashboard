@@ -2,6 +2,7 @@
 # KV Epic Dashboard Runner
 
 set -e
+cd "$(dirname "$0")"
 
 echo "🔧 Setting up virtual environment..."
 if [ ! -d ".venv" ]; then

@@ -2,6 +2,7 @@
 # KV Weekly Report Generator
 
 set -e
+cd "$(dirname "$0")"
 
 echo "🚀 Starting KV weekly report generation..."
 
@@ -53,4 +54,6 @@ python3 run_report.py "$@"
 
 echo ""
 echo "✅ Weekly report generated."
+echo "   Local dashboard reads: data/weekly_reports/  (and falls back to cloud_reports/)"
+echo "   Streamlit Cloud uses: cloud_reports/ in the Git repo — commit and push to deploy."
 echo "🌐 Launch dashboard with: ./run_dashboard.sh"
