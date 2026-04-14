@@ -1,0 +1,7 @@
+Download the xlsx files from the two reports
+- https://gus.lightning.force.com/lightning/r/Report/00OEE000002tild2AA/view?queryScope=userFolders
+- https://gus.lightning.force.com/lightning/r/Report/00OEE000002tu8T2AQ/view
+./run_report.sh --week cw16   # or omit --week for current cw
+git add cloud_reports
+git commit -m "cloud_reports: weekly snapshot"
+git push
