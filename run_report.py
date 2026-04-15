@@ -239,6 +239,34 @@ def current_cw_label(now: datetime) -> str:
     return f"cw{now.isocalendar().week:02d}"
 
 
+def week_key_from_folder_label(week_label: str, ref: datetime) -> str:
+    """Match bundle week_key to cwNN Excel/notes folder (ISO year-week), not necessarily today's calendar week."""
+    m = re.match(r"^cw(\d{2})$", week_label.strip(), re.IGNORECASE)
+    if not m:
+        return current_week_key(ref)
+    iw = int(m.group(1))
+    if iw < 1 or iw > 53:
+        return current_week_key(ref)
+    y = ref.year
+    try:
+        monday = datetime.fromisocalendar(y, iw, 1)
+    except ValueError:
+        return current_week_key(ref)
+    iso = monday.isocalendar()
+    return f"{iso.year}-W{iso.week:02d}"
+
+
+def monday_datetime_for_iso_week_key(week_key: str) -> Optional[datetime]:
+    m = re.match(r"^(\d{4})-W(\d{2})$", week_key.strip())
+    if not m:
+        return None
+    y, w = int(m.group(1)), int(m.group(2))
+    try:
+        return datetime.fromisocalendar(y, w, 1)
+    except ValueError:
+        return None
+
+
 def detect_week_excel_files(week_label: str, xlsx_base_dir: Path) -> Dict[str, Optional[str]]:
     week_dir = xlsx_base_dir / week_label
     discovered: Dict[str, Optional[str]] = {
@@ -510,6 +538,38 @@ def build_milestone_groups(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return groups
 
 
+def _coerce_llm_weekly_status_dict(parsed: Dict[str, Any]) -> Dict[str, Any]:
+    """Fix common LLM mistakes: title stuffed into headline, summary empty or too short."""
+    headline = normalize_text(parsed.get("headline", ""))
+    summary = normalize_text(parsed.get("summary", ""))
+    if not summary.strip():
+        for key in ("weekly_summary", "content", "body", "markdown", "text"):
+            v = parsed.get(key)
+            if isinstance(v, str) and v.strip():
+                summary = normalize_text(v)
+                break
+    if headline and re.search(r"Weekly update for SCRT2", headline, re.I):
+        if summary.strip():
+            summary = f"{headline}\n\n{summary}"
+        else:
+            summary = headline
+        headline = "Executive Weekly Status"
+    if not summary.strip():
+        raise ValueError("LLM weekly status response missing summary text")
+    if not headline.strip():
+        headline = "Executive Weekly Status"
+    executive_color = normalize_text(parsed.get("executive_color", "green")).lower() or "green"
+    ws_raw = parsed.get("workstream_statuses", [])
+    if not isinstance(ws_raw, list):
+        ws_raw = []
+    return {
+        "headline": headline,
+        "summary": summary,
+        "executive_color": executive_color,
+        "workstream_statuses": ws_raw,
+    }
+
+
 class KVNarrativeGenerator:
     """Generate weekly summary text using LLM gateway with safe fallback."""
 
@@ -639,14 +699,14 @@ class KVNarrativeGenerator:
         rows_by_program: Dict[str, List[Dict[str, Any]]],
     ) -> Dict[str, Any]:
         if not self.api_key:
-            return self._fallback_weekly_status(rows_by_program)
+            return self._fallback_weekly_status(week_key, rows_by_program)
         try:
             return self._call_llm_weekly_status(week_key, rows_by_program)
         except Exception as e:
             print(f"⚠️ Weekly status LLM failed, using fallback. Error: {e}")
-            return self._fallback_weekly_status(rows_by_program)
+            return self._fallback_weekly_status(week_key, rows_by_program)
 
-    def _fallback_weekly_status(self, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
+    def _fallback_weekly_status(self, week_key: str, rows_by_program: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
         workstream_statuses: List[Dict[str, str]] = []
 
         def summarize_program(program: str, rows: List[Dict[str, Any]]) -> str:
@@ -678,9 +738,11 @@ class KVNarrativeGenerator:
             for r in rows
             if "watch" in normalize_text(r.get("Status", "")).lower() or "blocked" in normalize_text(r.get("Status", "")).lower()
         )
+        monday_dt = monday_datetime_for_iso_week_key(week_key)
+        week_of = week_start_date(monday_dt) if monday_dt else week_start_date(datetime.now())
         executive = (
             "## Weekly update for SCRT2 and VegamDB on SDB for the week of "
-            f"{week_start_date(datetime.now())}\n\n"
+            f"{week_of}\n\n"
             "### Executive Summary\n"
             f"- Status: {'🟡 Watch' if overall_watch else '🟢 On Track'}.\n"
             "- Program execution is generally on track across workstreams.\n"
@@ -715,6 +777,8 @@ class KVNarrativeGenerator:
                 }
                 for r in rows[:200]
             ]
+        monday_dt = monday_datetime_for_iso_week_key(week_key)
+        week_start_str = week_start_date(monday_dt) if monday_dt else week_start_date(datetime.now())
         prompt = (
             "Create an executive weekly status update for SCRT2 and VegamDB. "
             "Use Status and Epic Health Comment to summarize health, notable progress, risks, and immediate next-focus areas.\n\n"
@@ -733,10 +797,13 @@ class KVNarrativeGenerator:
             "- For VegamDB emphasize development vs deployment execution.\n"
             "- Do not fabricate dates or milestones not present in input.\n\n"
             "Return strict JSON with keys: headline, summary, executive_color, workstream_statuses.\n"
+            "headline must be a short title only (for example: Executive Weekly Status). "
+            "Put the complete markdown report in summary, starting with '## Weekly update for SCRT2 and VegamDB on SDB for the week of <YYYY-MM-DD>', "
+            "then ### Executive Summary, ### Overview, ### Highlights by Workstream (with #### workstream blocks), and ### Watch Item(s).\n"
             "Where executive_color is one of red|yellow|green.\n"
             "workstream_statuses is an array of objects: {\"name\": \"<workstream>\", \"color\": \"red|yellow|green\"}.\n\n"
             f"Week: {week_key}\n"
-            f"Week start date (Monday): {week_start_date(datetime.now())}\n"
+            f"Week start date (Monday): {week_start_str}\n"
             f"Program data:\n{json.dumps(compact_rows, indent=2)}"
         )
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
@@ -756,11 +823,14 @@ class KVNarrativeGenerator:
             cleaned = re.sub(r"^```[a-zA-Z]*\n?", "", cleaned)
             cleaned = re.sub(r"\n?```$", "", cleaned).strip()
         parsed = json.loads(cleaned)
+        if not isinstance(parsed, dict):
+            raise ValueError("LLM weekly status response is not an object")
+        coerced = _coerce_llm_weekly_status_dict(parsed)
         return {
-            "headline": normalize_text(parsed.get("headline", "Executive Weekly Status")),
-            "summary": normalize_text(parsed.get("summary", "")),
-            "executive_color": normalize_text(parsed.get("executive_color", "green")).lower() or "green",
-            "workstream_statuses": parsed.get("workstream_statuses", []) if isinstance(parsed.get("workstream_statuses", []), list) else [],
+            "headline": coerced["headline"],
+            "summary": coerced["summary"],
+            "executive_color": coerced["executive_color"],
+            "workstream_statuses": coerced["workstream_statuses"],
         }
 
 
@@ -850,7 +920,7 @@ def generate_weekly_report(
             "source": source,
         }
 
-    week_key = current_week_key(now)
+    week_key = week_key_from_folder_label(resolved_week_label, now)
     previous_tab_narratives = load_previous_tab_narratives(week_key)
     narrative = KVNarrativeGenerator().generate(week_key, tab_summaries, tab_contexts, previous_tab_narratives)
     rows_by_program = {

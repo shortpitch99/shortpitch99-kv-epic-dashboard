@@ -79,6 +79,7 @@ Launch dashboard:
 - loads `KV/.env` if present
 - falls back to `/Users/rchowdhuri/QC/.env` for Salesforce auth only (LLM keys are never read from QC)
 - calls `run_report.py` to save `data/weekly_reports/weekly_report_<iso_week>_<timestamp>.json` and `data/weekly_reports/latest.json`
+- sets `week_key` (ISO year-week in filenames) from the **`cwNN` folder** you pass (`--week cw16`), so regenerating an older week does not accidentally label the bundle with today’s ISO week; Weekly Status uses that same week for dates and LLM context
 - writes the **same** JSON to `data/weekly_reports/` **and** `cloud_reports/` (timestamped file + `latest.json` in each); older `cloud_reports/weekly_report_<same_iso_week>_*.json` for that ISO week are removed
 - **Streamlit Community Cloud** only serves what is in Git — after each run, **`git add cloud_reports && git commit && git push`** so the hosted dashboard picks up the new week (e.g. cw16)
 - accepts passthrough args such as `--scrt2-xlsx` and `--vegamdb-xlsx`
