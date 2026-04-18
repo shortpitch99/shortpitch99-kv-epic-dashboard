@@ -1,6 +1,6 @@
 {
   "week_key": "2026-W16",
-  "generated_at": "2026-04-14 10:12:52",
+  "generated_at": "2026-04-18 07:45:40",
   "metadata": {
     "report_type": "kv_milestone_weekly",
     "source": "Mixed",
@@ -10,17 +10,17 @@
     },
     "week_label": "cw16",
     "inputs": {
-      "scrt2_xlsx": "/Users/rchowdhuri/KV/data/xlsx/cw16/SCRT2 Milestones-2026-04-14-10-05-52.xlsx",
+      "scrt2_xlsx": "/Users/rchowdhuri/KV/data/xlsx/cw16/SCRT2 Milestones-2026-04-18-07-21-35.xlsx",
       "vegamdb_xlsx": "/Users/rchowdhuri/KV/data/xlsx/cw16/VegamDB Milestones-2026-04-14-10-08-18.xlsx",
       "xlsx_base_dir": "/Users/rchowdhuri/KV/data/xlsx"
     },
     "tab_summaries": [
       {
         "label": "SCRT2 milestones",
-        "total_epics": 32,
-        "teams": 6,
+        "total_epics": 41,
+        "teams": 7,
         "status_buckets": 4,
-        "avg_complete": 53.2,
+        "avg_complete": 55.0,
         "remaining_work_items": 79.0
       },
       {
@@ -34,25 +34,33 @@
     ]
   },
   "narrative": {
-    "headline": "SCRT2 advances across core capabilities while VegamDB deployment work shows recovery",
-    "overall_summary": "SCRT2 demonstrates balanced progress at 53.2% completion across 32 epics, with teams executing critical Sharding, CDC, KV API, and GSI functionality. VegamDB achieves 83.3% completion with deployment work recovering from prior execution challenges."
+    "headline": "SCRT2 advances across core workstreams while VegamDB deployment work shows recovery signs",
+    "overall_summary": "SCRT2 demonstrates balanced progress with 55% average completion across 41 epics spanning 7 teams, though 79 remaining work items signal continued execution intensity. VegamDB shows strong recovery with 83% completion and only 1 remaining item, indicating deployment challenges are being addressed."
   },
   "weekly_status": {
-    "headline": "## Weekly update for SCRT2 and VegamDB on SDB for the week of 2026-04-13",
-    "summary": "- SCRT2 M2.0 milestone completed with foundational KV API, CDC, and sharding capabilities delivered\n- M3.0 work progressing on track with KV API Query/Scan, CDC with before/after images, and GSI runtime maintenance\n- VegamDB deployment blocked on pre-prod cell provisioning issues\n- Key integration points between mSDB and SDB engine components demonstrating successful end-to-end functionality",
+    "headline": "Executive Weekly Status",
+    "summary": "## Weekly update for SCRT2 and VegamDB on SDB for the week of 2026-04-13\n\n### Executive Summary\n- SCRT2 program showing strong progress with multiple foundational components completed and advanced features on track\n- KV API implementation fully delivered with DDL and single CRUD operations complete\n- CDC integration progressing with before/after image support and multi-session capabilities in development\n- Sharding and GSI workstreams advancing with catalog changes merged and runtime functionality under review\n- VegamDB pilot facing deployment delays with pre-prod cell builds still pending infrastructure provisioning\n\n### Overview\n- 13 SCRT2 epics completed this milestone period, establishing solid foundation for ZOS integration\n- Advanced capabilities (CDC, GSI, Sharding) progressing toward April 30th milestone\n- VegamDB deployment execution blocked on infrastructure provisioning issues\n- Strong collaboration between mSDB, SDB engine teams, and ZOS on API integration\n\n### Highlights by Workstream\n\n#### SDB KV API\n- **Goal**: Deliver complete KV API implementation for ZOS integration\n- **Status**: Green - Core functionality complete, advanced features progressing\n- **Progress**: DDL operations (CreateTable, DescribeTable, ListTables, DeleteTable) completed; Single CRUD operations (GetItem, PutItem, DeleteItem, UpdateItem) delivered; Update expression support and nested JSON handling completed; Query/Scan operations and BatchGet under review\n- **Next**: Complete Scan implementation and BatchWrite operations; Finalize tenant operations (CreateTenant, DescribeTenant)\n\n#### SCRT2 CDC Integration\n- **Goal**: Enable change data capture with before/after image support\n- **Status**: Yellow - Core functionality progressing, integration dependencies emerging\n- **Progress**: Single cell CDC without before/after images completed; After image functionality ready for master merge; Before image implementation in code review; Multi-session CDC development in progress\n- **Next**: Merge after image changes; Complete before image code review; Implement dynamic table/topic subscription for mSDB integration\n\n#### SCRT2 Sharding\n- **Goal**: Implement horizontal scaling capabilities with shard orchestration\n- **Status**: Green - Catalog foundation complete, DDL and routing progressing\n- **Progress**: Catalog and DDL changes merged to sdb-sharding branch; Sharding DDL implementation complete except merge operations; Column read validation pending review; Initial mSDB/SDB DDL integration demonstrated with split functionality\n- **Next**: Merge final catalog changes to master; Complete keyspace changes review with SDM team; Finalize shard orchestration implementation\n\n#### SCRT2 GSI Support\n- **Goal**: Deliver Global Secondary Index functionality for query optimization\n- **Status**: Green - Runtime maintenance complete, concurrent creation progressing\n- **Progress**: GSI catalog and DDL changes merged to sdb-sharding branch; Index maintenance at runtime completed with CDC integration; Concurrent index creation working with WAL-based approach; GSI planner changes in development\n- **Next**: Complete GSI planner implementation; Design engine-side raw ingestion API; Finalize transactional semantics for index operations\n\n#### VegamDB Pilot\n- **Goal**: Deploy VegamDB in pre-production environment for Data Cloud integration\n- **Status**: Red - Deployment blocked on infrastructure provisioning\n- **Progress**: KV API support completed and delivered to CDP RT team; Minimum idle hardware profile defined for dev and perf environments; Pre-prod cell builds initiated but stalled\n- **Next**: Resolve nodepool (r7i.2xlarge) provisioning issues; Complete SDB structured config overrides; Resume pre-prod cell build process\n\n### Watch Item(s)\n- VegamDB pre-prod deployment remains blocked on infrastructure provisioning after multiple weeks of delays\n- CDC integration complexity increasing with dynamic subscription requirements for mSDB-in-a-box\n- Sharding keyspace changes pending SDM team review creating potential bottleneck for advanced shard operations\n- GSI ingestion API design needs resolution on transactional semantics and shard movement handling",
     "executive_color": "yellow",
     "workstream_statuses": [
-      {
-        "name": "VegamDB Pilot",
-        "color": "yellow"
-      },
       {
         "name": "SDB KV API",
         "color": "green"
       },
       {
-        "name": "SCRT2 on SDB",
+        "name": "SCRT2 CDC Integration",
+        "color": "yellow"
+      },
+      {
+        "name": "SCRT2 Sharding",
         "color": "green"
+      },
+      {
+        "name": "SCRT2 GSI Support",
+        "color": "green"
+      },
+      {
+        "name": "VegamDB Pilot",
+        "color": "red"
       }
     ]
   },
@@ -61,19 +69,19 @@
       "report_id": "00OEE000002tild2AA",
       "rows": [
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Managed SDB",
           "Owner": "Roy Chowdhuri",
           "Epic Name": "Clear Requirements for bootstrapping ZOS on SDB",
           "Epic ID": "a3QEE000002CRUj",
           "Status": "Completed",
           "Epic Health Comment": "3/30:\r\nZOS Timelines:\r\nApril 15 (Early): Deliver a partial internal Dynamo client to unblock local onboarding.\r\nEnd of April (Full): Deliver the complete ZOS Docker image and mSDB MVP APIs.\r\nMVP Scope\r\nIn-Scope: Basic MVP APIs provided by mSDB required fo",
-          "% Complete": 0.0,
-          "Remaining Work Items": 1.0,
+          "% Complete": 100.0,
+          "Remaining Work Items": 0.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CRUj/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 262 mSDB - SCRT2 - Implementation of metadata schema for API",
@@ -85,19 +93,19 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWEH/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 262 mSDB - SCRT2 - ZOS Profile onboarding",
           "Epic ID": "a3QEE000002CWFt",
-          "Status": "On Track",
+          "Status": "Completed",
           "Epic Health Comment": "4/13: Backport PR merged. Pending validation and close .\r\n3/30: ZOS Profile onboarding to mSDB-in-a-box completed, 1 pending item to backport pg_ident changes for falcon onboarding.",
-          "% Complete": 75.0,
-          "Remaining Work Items": 1.0,
+          "% Complete": 100.0,
+          "Remaining Work Items": 0.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWFt/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 262 mSDB - SCRT2 - REST API Foundational request-ingestion pipeline",
@@ -109,43 +117,43 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWHV/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 262 mSDB - SCRT2 - SQL generation Engine (Single row DML)",
           "Epic ID": "a3QEE000002CWJ7",
           "Status": "Completed",
           "Epic Health Comment": "4/7: SQL generation for update expression, nested json support completed. \r\n\r\n3/30: SQL Generator Service implemented for Single item CRUD apis\r\nPending update expression, nested json support. Target 4/15",
-          "% Complete": 95.0,
-          "Remaining Work Items": 1.0,
+          "% Complete": 100.0,
+          "Remaining Work Items": 0.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWJ7/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 262 mSDB - SCRT2 - REST API Foundational service execution workflow",
           "Epic ID": "a3QEE000002CWUP",
           "Status": "Completed",
           "Epic Health Comment": "Orchestration layer and integration tests completed.",
-          "% Complete": 67.0,
-          "Remaining Work Items": 1.0,
+          "% Complete": 100.0,
+          "Remaining Work Items": 0.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWUP/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 262 mSDB - SCRT2 - KV Api Endpoint implemenation (DDL & Single CRUD)",
           "Epic ID": "a3QEE000002CWKj",
           "Status": "Completed",
           "Epic Health Comment": "4/7: ListTable and DeleteTable PR is out, and will complete by today.\r\n\r\n3/30 - KV api DDL (CreateTable , DescribeTable) , DML (GetItem, PutItem, DeleteItem, UpdateItem) completed. \r\nListTables -in progress",
-          "% Complete": 91.0,
+          "% Complete": 92.0,
           "Remaining Work Items": 1.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWKj/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Org Migration Core",
           "Owner": "Bahdan Batsalenka",
           "Epic Name": "[DbStream] Deliver single cell CDC w/o before and after image for ZOS/SCRT2",
@@ -157,19 +165,31 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CDht/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[264][ZOS on mSDB][M1.0] ZOS on mSDB HLD",
+          "Epic ID": "a3QEE000002KwBZ",
+          "Status": "Completed",
+          "Epic Health Comment": "3/31 Finalized SDB KV API Contract - Complete \r\n\r\nHLD: ZOS on SDB\r\nhttps://docs.google.com/document/d/1utiWiDo7PVOJ8anJzT-Epy79LmheBWCFhqWq88atj5A/edit?pli=1&tab=t.0",
+          "% Complete": 100.0,
+          "Remaining Work Items": 0.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002KwBZ/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "Sayonara TxP",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB - [CDC] Single cell CDC w/o before and after image",
           "Epic ID": "a3QEE000002CWML",
-          "Status": "On Track",
+          "Status": "Completed",
           "Epic Health Comment": "04/06:  The SDB engine side work is completed.  Keeping the epic open, until mSDB gets to use the new CREATE table syntax. Just in case there is any follow up work. \r\n3/30 Status Update\r\n\r\nOn track, The status for single cell CDC (without before and after",
           "% Complete": 67.0,
           "Remaining Work Items": 1.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWML/view"
         },
         {
-          "Milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+          "Milestone": "ZOS on mSDB (3/31)",
           "Team": "SDB Query Proc Execution",
           "Owner": "Mike Boz",
           "Epic Name": "264 Sharding:M2:Internal milestone: Catalog and DDL delivered to project branch",
@@ -181,7 +201,31 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Aadl/view"
         },
         {
-          "Milestone": "SCRT2: M2.5 Bootstrapping ZOS integration(4/15 completion)",
+          "Milestone": "ZOS on mSDB (4/15)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[264][ZOS on mSDB][M1.1] Foundational Refactoring for SDB KV API Integration",
+          "Epic ID": "a3QEE000002JfhS",
+          "Status": "On Track",
+          "Epic Health Comment": "4/15 \r\na) ZSP rolled out to all prod, replacing AWS KCL.\r\nb) KCL / AWS SDK v1 dependencies removed. Pending prod rollout 4/21\r\nc) Zero Downtime Org Migration implementation removed",
+          "% Complete": 25.0,
+          "Remaining Work Items": 6.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002JfhS/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (4/15)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[264][ZOS on mSDB][M1.2] ZOS on sdbkv-local",
+          "Epic ID": "a3QEE000002Jix3",
+          "Status": "Completed",
+          "Epic Health Comment": "4/15 Complete\r\n4/10 Published mock artifacts to Nexus, added a Jenkins pipeline to run sdbkv mock tests on each PR, and updated TTL management in the mock to reflect TTL DDL requirements.",
+          "% Complete": 100.0,
+          "Remaining Work Items": 0.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jix3/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (4/15)",
           "Team": "SDB LCM Foundation",
           "Owner": "Tien Tran",
           "Epic Name": "[262][SDB LCM Foundation] mSDB in GCP",
@@ -193,7 +237,7 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002APiM/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Update Expression support.",
@@ -205,19 +249,19 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002FtXh/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
-          "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Query,Scan and Batch",
+          "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Query and Scan",
           "Epic ID": "a3QEE000002FtZJ",
-          "Status": "On Track",
+          "Status": "Completed",
           "Epic Health Comment": "4/13: BatchGet,query read for review. Scan in progress. BatchWrite will start next. \r\n4/7: SCAN is being worked on. Query is 50% done. Batch is yet to start.",
           "% Complete": 0.0,
           "Remaining Work Items": 0.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002FtZJ/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api CDC Integration",
@@ -225,11 +269,11 @@
           "Status": "On Track",
           "Epic Health Comment": "4/13: ZOS indicated that dynamic table/topic subscription is required for cdc integration in msdb-in-a-box. Prioritizing dbstream support for dynamic topic subscription in sprint 4b.\r\n\r\nSpike for DbStream GCP onboarding scheduled but not yet started.\r\n\r\nm",
           "% Complete": 0.0,
-          "Remaining Work Items": 2.0,
+          "Remaining Work Items": 3.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Ftfl/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 262 mSDB - SCRT2 - REST API Foundation",
@@ -241,7 +285,7 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002I9Zx/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Tenant Operations",
@@ -253,7 +297,7 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002I9YL/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Org Migration Core",
           "Owner": "Bahdan Batsalenka",
           "Epic Name": "[DbStream] Deliver single cell CDC with before and after image for ZOS/SCRT2",
@@ -265,31 +309,43 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CDjV/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[264][ZOS on mSDB][M1.3] SDB KV API Test Suite",
+          "Epic ID": "a3QEE000002JkNl",
+          "Status": "On Track",
+          "Epic Health Comment": "",
+          "% Complete": 67.0,
+          "Remaining Work Items": 2.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002JkNl/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Sayonara TxP",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB - [CDC] core functionality w/o shard/tenant movement",
           "Epic ID": "a3QEE000002CWPZ",
           "Status": "On Track",
           "Epic Health Comment": "04/13:  After image is ready to be pushed to master. Before image in code review on track.  CDC Multi-session in progress.  \r\n\r\n04/06:  On track: After image is under code review for getting merged this week.  Before image in code review on track.  CDC Mu",
-          "% Complete": 33.0,
-          "Remaining Work Items": 16.0,
+          "% Complete": 59.0,
+          "Remaining Work Items": 12.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWPZ/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "Sayonara TxP",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB  - [GSI] Index maintenance at runtime",
           "Epic ID": "a3QEE000002EDPF",
           "Status": "On Track",
           "Epic Health Comment": "4/13: Updated the CDC functions to properly encode raw LSM records using base64. index maintenance and CDC changes PR in code review. \r\n\r\n\r\n4/7: Index maintenance at runtime is code complete and has basic CTESTs. Wrote simple functional tests to test the",
-          "% Complete": 33.0,
-          "Remaining Work Items": 2.0,
+          "% Complete": 67.0,
+          "Remaining Work Items": 1.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002EDPF/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "SDB QP India",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB - [GSI] Catalog and DDL changes",
@@ -301,19 +357,43 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002EDIn/view"
         },
         {
-          "Milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
           "Team": "SDB Query Proc Execution",
           "Owner": "Mike Boz",
           "Epic Name": "264 Sharding: M3:DDL - Create Table, Shard Orchestration DDL, CRUD operations",
           "Epic ID": "a3QEE000002AaVh",
           "Status": "On Track",
-          "Epic Health Comment": "Update 4/13/26 MB: \r\n-Final Catalog Changes for Sharding and GSI are in review for merging into master\r\n-Sharding DDL with exception of 'merge' is complete \r\n-Column read Validation is pending review\r\n\r\nUpdate 4/6/26 MB: \r\nMaking good progress on this mil",
-          "% Complete": 65.0,
-          "Remaining Work Items": 9.0,
+          "Epic Health Comment": "Update 4/13/26 MB: \r\n-Final Catalog Changes for Sharding and GSI are in review for merging into master\r\n-Sharding DDL with exception of 'merge' is complete \r\n-Column read Validation is pending review\r\n-Keyspace changes for sharding are in review with SDM",
+          "% Complete": 75.0,
+          "Remaining Work Items": 7.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002AaVh/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (4/30)",
+          "Team": "SDB Query Proc Execution",
+          "Owner": "Bruce Jackson",
+          "Epic Name": "264 Sharding:M3:SDB & mSDB integration points, Routing",
+          "Epic ID": "a3QEE000002C6dB",
+          "Status": "On Track",
+          "Epic Health Comment": "update 4/13/26 MB:\r\n-Initial mSDB/SDB DDL integration is complete.  we showed initial demo last Friday\r\n-Since then we added integration with split and it is working\r\n\r\nupdate 4/6/26 MB: \r\nRouting - Code completed, integration/testing pending SDB dependen",
+          "% Complete": 56.99999999999999,
+          "Remaining Work Items": 9.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002C6dB/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (5/15)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[M2.0][ZOS][262] ZOS on mSDB Docker Integration (5/15)",
+          "Epic ID": "a3QEE000002Jj0H",
+          "Status": "On Track",
+          "Epic Health Comment": "4/15: Updated our mock SDBKV implementation to use generated code based on the API spec. the Mock impl artifacts are now being published to nexus and available to a new jenkins pipeline on ZOS size to test each PR against SDB mock.",
+          "% Complete": 0.0,
+          "Remaining Work Items": 0.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jj0H/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Sharding Integration",
@@ -325,7 +405,7 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002FtmD/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "Managed SDB",
           "Owner": "Nithya Muthukrishnan",
           "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api GSI Support",
@@ -337,7 +417,7 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Ftnp/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "Org Migration Core",
           "Owner": "Bahdan Batsalenka",
           "Epic Name": "[DbStream] Deliver CDC with shard movement support for ZOS/SCRT2",
@@ -349,7 +429,19 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CDmj/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[M2.0][ZOS][262] Stand up and operationalize dedicated Ajna clusters",
+          "Epic ID": "a3QEE000002Jm4b",
+          "Status": "On Track",
+          "Epic Health Comment": "",
+          "% Complete": 0.0,
+          "Remaining Work Items": 0.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jm4b/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "Sayonara TxP",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB - [CDC] Functionally Complete",
@@ -361,67 +453,55 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWRB/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "Sayonara TxP",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB  - [GSI] Engine-side raw ingestion API",
           "Epic ID": "a3QEE000002A2Ij",
           "Status": "On Track",
           "Epic Health Comment": "4/13: Started looking into designing the ingestion API. Need to reason about transactional semantics, visibility, and potentially handling shard splits/merges. Will send out a design doc in a couple days for feedback.",
-          "% Complete": 33.0,
-          "Remaining Work Items": 6.0,
+          "% Complete": 42.0,
+          "Remaining Work Items": 7.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002A2Ij/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "SDB QP India",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB - [GSI] Concurrent Index Creation",
           "Epic ID": "a3QEE000002EDM1",
           "Status": "On Track",
           "Epic Health Comment": "4/13: Integrated with GSI catalog & DDL change, index maintenance changes. Create GSI Index working successfully, i.e. GSI writing into the WAL instead of Memstore and CDC reading from WAL and creating the index eventually. Working on adding more test sce",
-          "% Complete": 10.0,
-          "Remaining Work Items": 9.0,
+          "% Complete": 40.0,
+          "Remaining Work Items": 6.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002EDM1/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "SDB QP India",
           "Owner": "Haiyan Du",
           "Epic Name": "SCRT2 on SDB - [GSI] Planner Changes",
           "Epic ID": "a3QEE000002EDKP",
           "Status": "On Track",
           "Epic Health Comment": "4/13: GSI Planner changes are in progress. Will open a PR soon.",
-          "% Complete": 50.0,
-          "Remaining Work Items": 1.0,
+          "% Complete": 25.0,
+          "Remaining Work Items": 3.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002EDKP/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "SDB Query Proc Execution",
           "Owner": "Mike Boz",
           "Epic Name": "264 Sharding: M4:Advanced Shard Operations",
           "Epic ID": "a3QEE000002AakD",
           "Status": "On Track",
           "Epic Health Comment": "update 4/13/26 MB:\r\n- Working on Observability Proposal.  Should be published shortly for review.  \r\n\r\nupdate 4/6/26 MB:\r\n1) working on sharding observability proposal.   Assumption is that actual split and move will be driven from outside of the SDB engi",
-          "% Complete": 40.0,
+          "% Complete": 50.0,
           "Remaining Work Items": 3.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002AakD/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
-          "Team": "SDB Query Proc Execution",
-          "Owner": "Bruce Jackson",
-          "Epic Name": "264 Sharding:M3:SDB & mSDB integration points, Routing",
-          "Epic ID": "a3QEE000002C6dB",
-          "Status": "On Track",
-          "Epic Health Comment": "update 4/13/26 MB:\r\n-Initial mSDB/SDB DDL integration is complete.  we showed initial demo last Friday\r\n-Since then we added integration with split and it is working\r\n\r\nupdate 4/6/26 MB: \r\nRouting - Code completed, integration/testing pending SDB dependen",
-          "% Complete": 56.00000000000001,
-          "Remaining Work Items": 7.0,
-          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002C6dB/view"
-        },
-        {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "SDB Query Proc Execution",
           "Owner": "Mike Boz",
           "Epic Name": "M4:Shard isolation for range queries",
@@ -433,7 +513,7 @@
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002AafN/view"
         },
         {
-          "Milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
+          "Milestone": "ZOS on mSDB (5/30)",
           "Team": "SDB Query Proc Execution",
           "Owner": "Mike Boz",
           "Epic Name": "264 Sharding: M4:Shard Orchestration for split, merge, move",
@@ -443,20 +523,56 @@
           "% Complete": 38.0,
           "Remaining Work Items": 13.0,
           "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002AWa9/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (6/15)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[M2.0][ZOS][262] ZOS on mSDB Docker w/ (CRUD, DDL & GSI) w/o CDC Support (6/15)",
+          "Epic ID": "a3QEE000002JkQz",
+          "Status": "On Track",
+          "Epic Health Comment": "",
+          "% Complete": 0.0,
+          "Remaining Work Items": 0.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002JkQz/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (6/30)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[M2.0][ZOS][262] Non-Functional Comparison",
+          "Epic ID": "a3QEE000002Jm7p",
+          "Status": "On Track",
+          "Epic Health Comment": "",
+          "% Complete": 0.0,
+          "Remaining Work Items": 0.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jm7p/view"
+        },
+        {
+          "Milestone": "ZOS on mSDB (6/30)",
+          "Team": "Salesforce Zero Data",
+          "Owner": "Amine Thadi",
+          "Epic Name": "[M2.0][ZOS][262] Enable Streaming FIT validation",
+          "Epic ID": "a3QEE000002Jm6D",
+          "Status": "On Track",
+          "Epic Health Comment": "",
+          "% Complete": 0.0,
+          "Remaining Work Items": 0.0,
+          "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jm6D/view"
         }
       ],
       "metadata": {
         "label": "SCRT2 milestones",
-        "total_epics": 32,
-        "teams": 6,
+        "total_epics": 41,
+        "teams": 7,
         "status_buckets": 4,
-        "avg_complete": 53.2,
+        "avg_complete": 55.0,
         "remaining_work_items": 79.0,
         "grouped_by_milestone": [
           {
-            "milestone": "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
+            "milestone": "ZOS on mSDB (3/31)",
             "milestone_date": "2026-03-31",
-            "epic_count": 10,
+            "epic_count": 11,
             "epics": [
               {
                 "Epic Name": "Clear Requirements for bootstrapping ZOS on SDB",
@@ -464,8 +580,8 @@
                 "Epic Health Comment": "3/30:\r\nZOS Timelines:\r\nApril 15 (Early): Deliver a partial internal Dynamo client to unblock local onboarding.\r\nEnd of April (Full): Deliver the complete ZOS Docker image and mSDB MVP APIs.\r\nMVP Scope\r\nIn-Scope: Basic MVP APIs provided by mSDB required fo",
                 "Team": "Managed SDB",
                 "Owner": "Roy Chowdhuri",
-                "% Complete": 0.0,
-                "Remaining Work Items": 1.0,
+                "% Complete": 100.0,
+                "Remaining Work Items": 0.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CRUj/view"
               },
               {
@@ -480,12 +596,12 @@
               },
               {
                 "Epic Name": "SDB 262 mSDB - SCRT2 - ZOS Profile onboarding",
-                "Status": "On Track",
+                "Status": "Completed",
                 "Epic Health Comment": "4/13: Backport PR merged. Pending validation and close .\r\n3/30: ZOS Profile onboarding to mSDB-in-a-box completed, 1 pending item to backport pg_ident changes for falcon onboarding.",
                 "Team": "Managed SDB",
                 "Owner": "Nithya Muthukrishnan",
-                "% Complete": 75.0,
-                "Remaining Work Items": 1.0,
+                "% Complete": 100.0,
+                "Remaining Work Items": 0.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWFt/view"
               },
               {
@@ -504,8 +620,8 @@
                 "Epic Health Comment": "4/7: SQL generation for update expression, nested json support completed. \r\n\r\n3/30: SQL Generator Service implemented for Single item CRUD apis\r\nPending update expression, nested json support. Target 4/15",
                 "Team": "Managed SDB",
                 "Owner": "Nithya Muthukrishnan",
-                "% Complete": 95.0,
-                "Remaining Work Items": 1.0,
+                "% Complete": 100.0,
+                "Remaining Work Items": 0.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWJ7/view"
               },
               {
@@ -514,8 +630,8 @@
                 "Epic Health Comment": "Orchestration layer and integration tests completed.",
                 "Team": "Managed SDB",
                 "Owner": "Nithya Muthukrishnan",
-                "% Complete": 67.0,
-                "Remaining Work Items": 1.0,
+                "% Complete": 100.0,
+                "Remaining Work Items": 0.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWUP/view"
               },
               {
@@ -524,7 +640,7 @@
                 "Epic Health Comment": "4/7: ListTable and DeleteTable PR is out, and will complete by today.\r\n\r\n3/30 - KV api DDL (CreateTable , DescribeTable) , DML (GetItem, PutItem, DeleteItem, UpdateItem) completed. \r\nListTables -in progress",
                 "Team": "Managed SDB",
                 "Owner": "Nithya Muthukrishnan",
-                "% Complete": 91.0,
+                "% Complete": 92.0,
                 "Remaining Work Items": 1.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWKj/view"
               },
@@ -539,8 +655,18 @@
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CDht/view"
               },
               {
+                "Epic Name": "[264][ZOS on mSDB][M1.0] ZOS on mSDB HLD",
+                "Status": "Completed",
+                "Epic Health Comment": "3/31 Finalized SDB KV API Contract - Complete \r\n\r\nHLD: ZOS on SDB\r\nhttps://docs.google.com/document/d/1utiWiDo7PVOJ8anJzT-Epy79LmheBWCFhqWq88atj5A/edit?pli=1&tab=t.0",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 100.0,
+                "Remaining Work Items": 0.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002KwBZ/view"
+              },
+              {
                 "Epic Name": "SCRT2 on SDB - [CDC] Single cell CDC w/o before and after image",
-                "Status": "On Track",
+                "Status": "Completed",
                 "Epic Health Comment": "04/06:  The SDB engine side work is completed.  Keeping the epic open, until mSDB gets to use the new CREATE table syntax. Just in case there is any follow up work. \r\n3/30 Status Update\r\n\r\nOn track, The status for single cell CDC (without before and after",
                 "Team": "Sayonara TxP",
                 "Owner": "Haiyan Du",
@@ -561,10 +687,30 @@
             ]
           },
           {
-            "milestone": "SCRT2: M2.5 Bootstrapping ZOS integration(4/15 completion)",
+            "milestone": "ZOS on mSDB (4/15)",
             "milestone_date": "2026-04-15",
-            "epic_count": 1,
+            "epic_count": 3,
             "epics": [
+              {
+                "Epic Name": "[264][ZOS on mSDB][M1.1] Foundational Refactoring for SDB KV API Integration",
+                "Status": "On Track",
+                "Epic Health Comment": "4/15 \r\na) ZSP rolled out to all prod, replacing AWS KCL.\r\nb) KCL / AWS SDK v1 dependencies removed. Pending prod rollout 4/21\r\nc) Zero Downtime Org Migration implementation removed",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 25.0,
+                "Remaining Work Items": 6.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002JfhS/view"
+              },
+              {
+                "Epic Name": "[264][ZOS on mSDB][M1.2] ZOS on sdbkv-local",
+                "Status": "Completed",
+                "Epic Health Comment": "4/15 Complete\r\n4/10 Published mock artifacts to Nexus, added a Jenkins pipeline to run sdbkv mock tests on each PR, and updated TTL management in the mock to reflect TTL DDL requirements.",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 100.0,
+                "Remaining Work Items": 0.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jix3/view"
+              },
               {
                 "Epic Name": "[262][SDB LCM Foundation] mSDB in GCP",
                 "Status": "Completed",
@@ -578,9 +724,9 @@
             ]
           },
           {
-            "milestone": "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
+            "milestone": "ZOS on mSDB (4/30)",
             "milestone_date": "2026-04-30",
-            "epic_count": 10,
+            "epic_count": 12,
             "epics": [
               {
                 "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Update Expression support.",
@@ -593,8 +739,8 @@
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002FtXh/view"
               },
               {
-                "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Query,Scan and Batch",
-                "Status": "On Track",
+                "Epic Name": "SDB 264 mSDB - SCRT2 - KV Api Query and Scan",
+                "Status": "Completed",
                 "Epic Health Comment": "4/13: BatchGet,query read for review. Scan in progress. BatchWrite will start next. \r\n4/7: SCAN is being worked on. Query is 50% done. Batch is yet to start.",
                 "Team": "Managed SDB",
                 "Owner": "Nithya Muthukrishnan",
@@ -609,7 +755,7 @@
                 "Team": "Managed SDB",
                 "Owner": "Nithya Muthukrishnan",
                 "% Complete": 0.0,
-                "Remaining Work Items": 2.0,
+                "Remaining Work Items": 3.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Ftfl/view"
               },
               {
@@ -643,13 +789,23 @@
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CDjV/view"
               },
               {
+                "Epic Name": "[264][ZOS on mSDB][M1.3] SDB KV API Test Suite",
+                "Status": "On Track",
+                "Epic Health Comment": "",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 67.0,
+                "Remaining Work Items": 2.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002JkNl/view"
+              },
+              {
                 "Epic Name": "SCRT2 on SDB - [CDC] core functionality w/o shard/tenant movement",
                 "Status": "On Track",
                 "Epic Health Comment": "04/13:  After image is ready to be pushed to master. Before image in code review on track.  CDC Multi-session in progress.  \r\n\r\n04/06:  On track: After image is under code review for getting merged this week.  Before image in code review on track.  CDC Mu",
                 "Team": "Sayonara TxP",
                 "Owner": "Haiyan Du",
-                "% Complete": 33.0,
-                "Remaining Work Items": 16.0,
+                "% Complete": 59.0,
+                "Remaining Work Items": 12.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CWPZ/view"
               },
               {
@@ -658,8 +814,8 @@
                 "Epic Health Comment": "4/13: Updated the CDC functions to properly encode raw LSM records using base64. index maintenance and CDC changes PR in code review. \r\n\r\n\r\n4/7: Index maintenance at runtime is code complete and has basic CTESTs. Wrote simple functional tests to test the",
                 "Team": "Sayonara TxP",
                 "Owner": "Haiyan Du",
-                "% Complete": 33.0,
-                "Remaining Work Items": 2.0,
+                "% Complete": 67.0,
+                "Remaining Work Items": 1.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002EDPF/view"
               },
               {
@@ -675,18 +831,45 @@
               {
                 "Epic Name": "264 Sharding: M3:DDL - Create Table, Shard Orchestration DDL, CRUD operations",
                 "Status": "On Track",
-                "Epic Health Comment": "Update 4/13/26 MB: \r\n-Final Catalog Changes for Sharding and GSI are in review for merging into master\r\n-Sharding DDL with exception of 'merge' is complete \r\n-Column read Validation is pending review\r\n\r\nUpdate 4/6/26 MB: \r\nMaking good progress on this mil",
+                "Epic Health Comment": "Update 4/13/26 MB: \r\n-Final Catalog Changes for Sharding and GSI are in review for merging into master\r\n-Sharding DDL with exception of 'merge' is complete \r\n-Column read Validation is pending review\r\n-Keyspace changes for sharding are in review with SDM",
                 "Team": "SDB Query Proc Execution",
                 "Owner": "Mike Boz",
-                "% Complete": 65.0,
-                "Remaining Work Items": 9.0,
+                "% Complete": 75.0,
+                "Remaining Work Items": 7.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002AaVh/view"
+              },
+              {
+                "Epic Name": "264 Sharding:M3:SDB & mSDB integration points, Routing",
+                "Status": "On Track",
+                "Epic Health Comment": "update 4/13/26 MB:\r\n-Initial mSDB/SDB DDL integration is complete.  we showed initial demo last Friday\r\n-Since then we added integration with split and it is working\r\n\r\nupdate 4/6/26 MB: \r\nRouting - Code completed, integration/testing pending SDB dependen",
+                "Team": "SDB Query Proc Execution",
+                "Owner": "Bruce Jackson",
+                "% Complete": 56.99999999999999,
+                "Remaining Work Items": 9.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002C6dB/view"
               }
             ]
           },
           {
-            "milestone": "SCRT2: M4.0 Feature complete (5/31 completion)",
-            "milestone_date": "2026-05-31",
+            "milestone": "ZOS on mSDB (5/15)",
+            "milestone_date": "2026-05-15",
+            "epic_count": 1,
+            "epics": [
+              {
+                "Epic Name": "[M2.0][ZOS][262] ZOS on mSDB Docker Integration (5/15)",
+                "Status": "On Track",
+                "Epic Health Comment": "4/15: Updated our mock SDBKV implementation to use generated code based on the API spec. the Mock impl artifacts are now being published to nexus and available to a new jenkins pipeline on ZOS size to test each PR against SDB mock.",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 0.0,
+                "Remaining Work Items": 0.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jj0H/view"
+              }
+            ]
+          },
+          {
+            "milestone": "ZOS on mSDB (5/30)",
+            "milestone_date": "2026-05-30",
             "epic_count": 11,
             "epics": [
               {
@@ -720,6 +903,16 @@
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002CDmj/view"
               },
               {
+                "Epic Name": "[M2.0][ZOS][262] Stand up and operationalize dedicated Ajna clusters",
+                "Status": "On Track",
+                "Epic Health Comment": "",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 0.0,
+                "Remaining Work Items": 0.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jm4b/view"
+              },
+              {
                 "Epic Name": "SCRT2 on SDB - [CDC] Functionally Complete",
                 "Status": "Not Started",
                 "Epic Health Comment": "",
@@ -735,8 +928,8 @@
                 "Epic Health Comment": "4/13: Started looking into designing the ingestion API. Need to reason about transactional semantics, visibility, and potentially handling shard splits/merges. Will send out a design doc in a couple days for feedback.",
                 "Team": "Sayonara TxP",
                 "Owner": "Haiyan Du",
-                "% Complete": 33.0,
-                "Remaining Work Items": 6.0,
+                "% Complete": 42.0,
+                "Remaining Work Items": 7.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002A2Ij/view"
               },
               {
@@ -745,8 +938,8 @@
                 "Epic Health Comment": "4/13: Integrated with GSI catalog & DDL change, index maintenance changes. Create GSI Index working successfully, i.e. GSI writing into the WAL instead of Memstore and CDC reading from WAL and creating the index eventually. Working on adding more test sce",
                 "Team": "SDB QP India",
                 "Owner": "Haiyan Du",
-                "% Complete": 10.0,
-                "Remaining Work Items": 9.0,
+                "% Complete": 40.0,
+                "Remaining Work Items": 6.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002EDM1/view"
               },
               {
@@ -755,8 +948,8 @@
                 "Epic Health Comment": "4/13: GSI Planner changes are in progress. Will open a PR soon.",
                 "Team": "SDB QP India",
                 "Owner": "Haiyan Du",
-                "% Complete": 50.0,
-                "Remaining Work Items": 1.0,
+                "% Complete": 25.0,
+                "Remaining Work Items": 3.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002EDKP/view"
               },
               {
@@ -765,19 +958,9 @@
                 "Epic Health Comment": "update 4/13/26 MB:\r\n- Working on Observability Proposal.  Should be published shortly for review.  \r\n\r\nupdate 4/6/26 MB:\r\n1) working on sharding observability proposal.   Assumption is that actual split and move will be driven from outside of the SDB engi",
                 "Team": "SDB Query Proc Execution",
                 "Owner": "Mike Boz",
-                "% Complete": 40.0,
+                "% Complete": 50.0,
                 "Remaining Work Items": 3.0,
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002AakD/view"
-              },
-              {
-                "Epic Name": "264 Sharding:M3:SDB & mSDB integration points, Routing",
-                "Status": "On Track",
-                "Epic Health Comment": "update 4/13/26 MB:\r\n-Initial mSDB/SDB DDL integration is complete.  we showed initial demo last Friday\r\n-Since then we added integration with split and it is working\r\n\r\nupdate 4/6/26 MB: \r\nRouting - Code completed, integration/testing pending SDB dependen",
-                "Team": "SDB Query Proc Execution",
-                "Owner": "Bruce Jackson",
-                "% Complete": 56.00000000000001,
-                "Remaining Work Items": 7.0,
-                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002C6dB/view"
               },
               {
                 "Epic Name": "M4:Shard isolation for range queries",
@@ -800,32 +983,72 @@
                 "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002AWa9/view"
               }
             ]
+          },
+          {
+            "milestone": "ZOS on mSDB (6/15)",
+            "milestone_date": "2026-06-15",
+            "epic_count": 1,
+            "epics": [
+              {
+                "Epic Name": "[M2.0][ZOS][262] ZOS on mSDB Docker w/ (CRUD, DDL & GSI) w/o CDC Support (6/15)",
+                "Status": "On Track",
+                "Epic Health Comment": "",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 0.0,
+                "Remaining Work Items": 0.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002JkQz/view"
+              }
+            ]
+          },
+          {
+            "milestone": "ZOS on mSDB (6/30)",
+            "milestone_date": "2026-06-30",
+            "epic_count": 2,
+            "epics": [
+              {
+                "Epic Name": "[M2.0][ZOS][262] Non-Functional Comparison",
+                "Status": "On Track",
+                "Epic Health Comment": "",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 0.0,
+                "Remaining Work Items": 0.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jm7p/view"
+              },
+              {
+                "Epic Name": "[M2.0][ZOS][262] Enable Streaming FIT validation",
+                "Status": "On Track",
+                "Epic Health Comment": "",
+                "Team": "Salesforce Zero Data",
+                "Owner": "Amine Thadi",
+                "% Complete": 0.0,
+                "Remaining Work Items": 0.0,
+                "GUS Epic": "https://gus.lightning.force.com/lightning/r/ADM_Theme__c/a3QEE000002Jm6D/view"
+              }
+            ]
           }
         ],
         "milestones": [
-          "SCRT2: M2.0 Bootstrapping ZOS (3/31 completion)",
-          "SCRT2: M2.5 Bootstrapping ZOS integration(4/15 completion)",
-          "SCRT2: M3.0 Complete Core Functionality (4/30 completion)",
-          "SCRT2: M4.0 Feature complete (5/31 completion)"
+          "ZOS on mSDB (3/31)",
+          "ZOS on mSDB (4/15)",
+          "ZOS on mSDB (4/30)",
+          "ZOS on mSDB (5/15)",
+          "ZOS on mSDB (5/30)",
+          "ZOS on mSDB (6/15)",
+          "ZOS on mSDB (6/30)"
         ],
-        "risks_count": 2,
+        "risks_count": 1,
         "action_items_count": 3
       },
       "notes": {
         "risks": [
           {
             "priority_or_severity": "High",
-            "owner": "Roy",
-            "due": "2026-04-07",
-            "status": "Open",
-            "summary": "Timeline for bootstrapping ZOS on SDB is slipping. What does it do to the overall program"
-          },
-          {
-            "priority_or_severity": "High",
             "owner": "Haiyan",
             "due": "2026-04-07",
             "status": "Open",
-            "summary": "Need to define new timeline for GSI and impact on the overall program"
+            "summary": "GSI timeline based on new addition; will the timeline hold?"
           }
         ],
         "action_items": [
@@ -834,7 +1057,7 @@
             "owner": "Nithya",
             "due": "2026-04-07",
             "status": "To discuss",
-            "summary": "Define acceptance tests as exit criteria for SCRT2/ZOS as part of their 4/30 deliverable"
+            "summary": "Define acceptance tests as exit criteria for SCRT2/ZOS as part of milestone deliverable"
           },
           {
             "priority_or_severity": "P1",
@@ -852,8 +1075,8 @@
           }
         ]
       },
-      "source": "Excel (SCRT2 Milestones-2026-04-14-10-05-52.xlsx)",
-      "narrative": "Six teams execute 32 epics targeting M3.0 and M4.0 milestones, with SDB Query Proc Execution leading Sharding orchestration efforts at 56.4% completion despite 33 remaining items. CDC functionality shows early-stage development at 10.9% completion with Sayonara TxP's core implementation carrying 16 outstanding items, while KV API workstream progresses to 45.6% with strong Managed SDB integration support. Global Secondary Index concurrent creation remains a critical path item at 10% completion, though planner changes and runtime maintenance components advance steadily."
+      "source": "Excel (SCRT2 Milestones-2026-04-18-07-21-35.xlsx)",
+      "narrative": "Seven teams orchestrate 41 epics with Salesforce Zero Data emerging as the primary execution bottleneck at 24% completion and 8 remaining items concentrated in foundational KV API refactoring. Sharding workstream leads technical complexity with 52 outstanding items across orchestration and advanced operations, while CDC integration shows early-stage momentum at 20.8% completion with Sayonara TxP driving core functionality. Global Secondary Index development maintains consistent velocity at 43.6% completion, with concurrent index creation and planner changes representing the primary technical challenges ahead."
     },
     "VegamDB milestones": {
       "report_id": "00OEE000002tu8T2AQ",
@@ -983,7 +1206,7 @@
         ]
       },
       "source": "Excel (VegamDB Milestones-2026-04-14-10-08-18.xlsx)",
-      "narrative": "VegamDB reaches 83.3% completion with deployment work showing marked improvement from previous execution challenges. SDB LCM Foundation's pre-production cell builds advance to 50% completion under Watch status with 1 remaining item, representing significant progress from prior stalled state. Development activities maintain full completion status through Managed SDB's KV API integration and SDB Performance's hardware profiling work."
+      "narrative": "VegamDB execution has stabilized with deployment work showing marked improvement from prior week's stagnation. SDB LCM Foundation's pre-production cell builds advanced to 50% completion while maintaining Watch status, indicating active risk mitigation for the single remaining work item. Development activities remain fully completed across both Managed SDB and SDB Performance teams, creating a solid foundation for final deployment milestone achievement."
     }
   }
 }

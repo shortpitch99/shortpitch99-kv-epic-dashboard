@@ -1,3 +1,3 @@
-P1 | Nithya | 2026-04-07 | To discuss | Define acceptance tests as exit criteria for SCRT2/ZOS as part of their 4/30 deliverable
+P1 | Nithya | 2026-04-07 | To discuss | Define acceptance tests as exit criteria for SCRT2/ZOS as part of milestone deliverable
 P1 | Kaushal | 2026-04-14 | To Discuss | How do we communicate GUCs for mSDB. Lot of work on the engine side is behind GUC (disabled by default to avoid impact to core). Now, for ZOS/mSDB, we want these GUCs to be on
 P2 | Roy | 2026-04-09 | To discuss | Understanding CTS requirements for ZOS
