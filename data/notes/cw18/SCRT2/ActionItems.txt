@@ -1,3 +1,3 @@
 P1 | Nithya | 2026-04-31 | Open | Define acceptance tests as exit criteria for SCRT2/ZOS as part of milestone deliverable
-P1 | Kaushal | 2026-04-14 | Open | How do we communicate GUCs for mSDB. Lot of work on the engine side is behind GUC (disabled by default to avoid impact to core). Now, for ZOS/mSDB, we want these GUCs to be on
+P1 | Nithya | 2026-05-15 | Open | Can we leverage the 18 node cluster in CDP created for sharding POC for perf or reduce capacity
 P2 | Roy | 2026-04-31 | In progress | Understanding CTS requirements for ZOS

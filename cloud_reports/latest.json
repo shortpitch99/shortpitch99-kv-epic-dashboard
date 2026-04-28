@@ -1,6 +1,6 @@
 {
   "week_key": "2026-W18",
-  "generated_at": "2026-04-28 06:35:18",
+  "generated_at": "2026-04-28 09:50:10",
   "metadata": {
     "report_type": "kv_milestone_weekly",
     "source": "Mixed",
@@ -34,25 +34,25 @@
     ]
   },
   "narrative": {
-    "headline": "SCRT2 maintains 64% completion rate with 71 items outstanding while VegamDB sustains full completion across all workstreams",
-    "overall_summary": "SCRT2 program demonstrates consistent execution across 7 teams with 41 active epics, maintaining steady progress despite 71 remaining work items concentrated in sharding orchestration and CDC integration. VegamDB program holds at 100% completion with continued Watch status on deployment infrastructure, transitioning fully to operational monitoring phase."
+    "headline": "SCRT2 maintains steady execution pace at 64% completion while VegamDB concludes all active development",
+    "overall_summary": "SCRT2 program sustains momentum across 41 epics with 71 remaining work items, led by Query Processing teams advancing core sharding orchestration and GSI capabilities. VegamDB achieves full program closure with all 3 epics completed, transitioning one deployment epic to monitoring status. Key execution focus centers on SCRT2's April and May milestone deliveries spanning KV API integration, CDC functionality, and advanced sharding operations."
   },
   "weekly_status": {
     "headline": "Executive Weekly Status",
-    "summary": "## Weekly update for SCRT2 and VegamDB on SDB for the week of 2026-04-27\n\n### Executive Summary\n- SCRT2 on SDB making strong progress across all workstreams with majority of 4/30 milestone deliverables on track\n- KV API foundation complete with CDC integration and sharding components advancing toward 5/30 targets\n- GSI implementation progressing well with planner changes ready and concurrent index creation in development\n- VegamDB pilot deployment blocked on infrastructure provisioning issues requiring immediate attention\n\n### Overview\n- Core SCRT2 functionality delivered including KV API CRUD operations, batch operations, and tenant management\n- CDC capabilities enhanced with before/after image support and multi-session changes merged to master\n- Sharding integration testing underway with performance optimization work beginning for 5/30 milestone\n- VegamDB deployment remains stalled on pre-production cell builds due to nodepool provisioning delays\n\n### Highlights by Workstream\n\n#### SDB KV API\n- Goal: Complete foundational KV API implementation with CDC integration for 4/30 milestone\n- Status: On track with most components delivered\n- Progress: Batch operations and tenant operations completed, CDC integration APIs in development, test suite publishing to nexus\n- Next: Complete CDC integration validation and begin sharding integration work for 5/30\n\n#### SCRT2 on SDB\n- Goal: Deliver core SCRT2 functionality including CDC, GSI, and sharding capabilities\n- Status: Strong progress across all components\n- Progress: CDC before/after image support merged, GSI planner changes ready for PR, sharding DDL and routing integration testing active\n- Next: Complete GSI concurrent index creation, advance shard orchestration automation, integrate performance optimizations\n\n#### VegamDB Pilot\n- Goal: Complete deployment to pre-production environment\n- Status: Blocked on infrastructure provisioning\n- Progress: KV API integration delivered to CDP RT team, hardware profile design completed\n- Next: Resolve nodepool provisioning issues and complete pre-production cell builds\n\n### Watch Item(s)\n- VegamDB pre-production deployment blocked on r7i.2xlarge nodepool provisioning and SDB SC overrides\n- Sharding performance optimization work needs to be prioritized for 5/30 milestone delivery\n- CDC shard movement support not yet started for 5/30 milestone requiring immediate attention",
+    "summary": "## Weekly update for SCRT2 and VegamDB on SDB for the week of 2026-04-27\n\n### Executive Summary\n- SCRT2 on SDB making strong progress across all workstreams with multiple milestone completions\n- KV API foundational components delivered and batch operations completed\n- CDC before/after image support and GSI runtime maintenance on track for 4/30 milestone\n- Sharding integration progressing with keyspace LSM reviews and shard orchestration development\n- VegamDB pilot deployment blocked on infrastructure provisioning delays\n\n### Overview\n- Multiple SCRT2 epics completed including KV API batch operations, CDC core functionality, and GSI catalog changes\n- Strong momentum on sharding capabilities with DDL and routing integration testing underway\n- ZOS integration work advancing with test suite development and Docker integration planning\n- VegamDB deployment remains watch status due to nodepool provisioning delays\n\n### Highlights by Workstream\n\n#### SCRT2 on SDB\n- **Goal**: Deliver complete SCRT2 functionality on SDB including KV API, CDC, GSI, and sharding\n- **Status**: On Track\n- **Progress**: Completed KV API batch operations, CDC before/after image support merged to master, GSI catalog changes delivered, sharding keyspace LSM reviews progressing\n- **Next**: Complete 4/30 milestone deliveries for CDC integration APIs, GSI runtime maintenance, and sharding DDL operations\n\n#### SDB KV API\n- **Goal**: Provide complete KV API functionality for SCRT2 integration\n- **Status**: On Track\n- **Progress**: Batch operations completed, CDC integration APIs in development, tenant operations delivered\n- **Next**: Focus on sharding integration and GSI support for 5/30 milestone\n\n#### VegamDB Pilot\n- **Goal**: Deploy VegamDB on SDB infrastructure for Data Cloud integration\n- **Status**: Watch\n- **Progress**: KV API support completed and delivered to CDP RT team, min idle HW profile design completed\n- **Next**: Resolve nodepool provisioning delays for pre-prod cell builds\n\n### Watch Item(s)\n- VegamDB pre-prod cell builds blocked on r7i.2xlarge nodepool provisioning and SDB SC overrides\n- Sharding performance improvements needed for 5/30 milestone\n- CDC shard movement support dependencies for 5/30 delivery\n- GSI concurrent index creation testing and infrastructure requirements",
     "executive_color": "yellow",
     "workstream_statuses": [
-      {
-        "name": "SDB KV API",
-        "color": "green"
-      },
       {
         "name": "SCRT2 on SDB",
         "color": "green"
       },
       {
+        "name": "SDB KV API",
+        "color": "green"
+      },
+      {
         "name": "VegamDB Pilot",
-        "color": "red"
+        "color": "yellow"
       }
     ]
   },
@@ -1053,10 +1053,10 @@
           },
           {
             "priority_or_severity": "P1",
-            "owner": "Kaushal",
-            "due": "2026-04-14",
+            "owner": "Nithya",
+            "due": "2026-05-15",
             "status": "Open",
-            "summary": "How do we communicate GUCs for mSDB. Lot of work on the engine side is behind GUC (disabled by default to avoid impact to core). Now, for ZOS/mSDB, we want these GUCs to be on"
+            "summary": "Can we leverage the 18 node cluster in CDP created for sharding POC for perf or reduce capacity"
           },
           {
             "priority_or_severity": "P2",
@@ -1068,7 +1068,7 @@
         ]
       },
       "source": "Excel (SCRT2 Milestones-2026-04-28-04-27-32.xlsx)",
-      "narrative": "Cross-team coordination intensifies with KV API test suite at 67% completion driving Salesforce Zero Data's 10-item backlog, while Sharding orchestration for split/merge operations presents the largest single challenge at 13 remaining items. CDC core functionality reaches completion milestone despite 9 residual items, and Global Secondary Index concurrent creation progresses to 40% with engine-side ingestion API advancing to 57% completion. SDB Query Proc Execution leads technical complexity with 26 outstanding items across advanced shard operations, while Managed SDB initiates KV API CDC integration from ground zero."
+      "narrative": "Seven teams drive consistent progress with Query Processing Execution leading sharding orchestration (41% complete, 13 items) and DDL operations (79% complete) for April delivery. KV API workstream advances to 56.9% completion while CDC integration reaches 25.4% with core functionality completed by Sayonara TxP, though significant work remains across teams. Global Secondary Index development progresses at 46% with concurrent creation and engine-side ingestion APIs targeting May milestones, while Salesforce Zero Data's test suite completion represents a critical path dependency."
     },
     "VegamDB milestones": {
       "report_id": "00OEE000002tu8T2AQ",
@@ -1167,7 +1167,7 @@
           "VegamDB: M1.0 Function Integration complete (3/20 completion)",
           "VegamDB: M2.0 Deployment (3/27 completion)"
         ],
-        "risks_count": 1,
+        "risks_count": 2,
         "action_items_count": 2
       },
       "notes": {
@@ -1178,6 +1178,13 @@
             "due": "2026-04-30",
             "status": "Open",
             "summary": "Need to have an acceptance test defined for VegamDB on SDB"
+          },
+          {
+            "priority_or_severity": "High",
+            "owner": "Nithya",
+            "due": "2026-04-30",
+            "status": "Open",
+            "summary": "Need to talk about EKS->FKP gap, and what's the path to VegamDB GA"
           }
         ],
         "action_items": [
@@ -1198,7 +1205,7 @@
         ]
       },
       "source": "Excel (VegamDB Milestones-2026-04-28-04-27-49.xlsx)",
-      "narrative": "Program maintains complete technical delivery with all development and deployment epics at 100% completion, while SDB LCM Foundation's pre-production cell builds remain under Watch status for ongoing deployment monitoring. Operational transition solidifies with zero active work items across Managed SDB, SDB Performance, and SDB LCM Foundation teams, establishing full deployment readiness."
+      "narrative": "Program achieves complete technical delivery with all development work finalized across Managed SDB, SDB Performance, and SDB LCM Foundation teams. Deployment workstream concludes successfully with pre-production cell builds maintaining Watch status for operational monitoring despite 100% completion. The transition from active development to post-deployment oversight marks successful program closure with infrastructure fully operational."
     }
   }
 }
