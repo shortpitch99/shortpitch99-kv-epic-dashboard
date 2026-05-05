@@ -228,6 +228,10 @@ def render_narrative(snapshot: Dict[str, Any]) -> None:
 
 
 def render_weekly_status(snapshot: Dict[str, Any]) -> None:
+    def strip_sb2(text: str) -> str:
+        # Some generated outputs occasionally include SB2; remove it from UI text.
+        return re.sub(r"(?i)\bSB2\b", "", str(text or "")).replace("  ", " ").strip()
+
     def status_emoji_from_color(color: str) -> str:
         c = (color or "").strip().lower()
         if c == "red":
@@ -278,18 +282,18 @@ def render_weekly_status(snapshot: Dict[str, Any]) -> None:
         return "\n".join(out)
 
     ws = snapshot.get("weekly_status", {}) or {}
-    headline = str(ws.get("headline", "")).strip() or "Executive Weekly Status"
-    summary = str(ws.get("summary", "")).strip()
+    headline = strip_sb2(str(ws.get("headline", "")).strip()) or "Executive Weekly Status"
+    summary = strip_sb2(str(ws.get("summary", "")).strip())
     executive_color = str(ws.get("executive_color", "green")).strip().lower() or "green"
     workstream_colors = {}
     for item in ws.get("workstream_statuses", []) or []:
         if isinstance(item, dict):
-            name = str(item.get("name", "")).strip()
+            name = strip_sb2(str(item.get("name", "")).strip())
             color = str(item.get("color", "")).strip().lower()
             if name:
                 workstream_colors[name] = color or "green"
     week_key = str(snapshot.get("week_key", "")).strip()
-    week_announcement = "📣 Weekly update for SCRT2 and VegamDB on SDB"
+    week_announcement = strip_sb2("📣 Weekly update for SCRT2 and VegamDB on SDB")
     if week_key:
         week_announcement = f"{week_announcement} ({week_key})"
     if summary:
@@ -550,11 +554,13 @@ def render_status_colored_table(table: pd.DataFrame) -> None:
         rows.append(f'<tr style="background:{bg};">{"".join(cells)}</tr>')
 
     html_table = f"""
-    <div style="overflow-x:auto;">
+    <div style="border:2px solid #cbd5e1;border-radius:10px;padding:10px 12px;margin:0 0 14px 0;background:#f8fafc;">
+      <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:0.92rem;">
         <thead><tr style="background:#f8fafc;">{header}</tr></thead>
         <tbody>{''.join(rows)}</tbody>
       </table>
+      </div>
     </div>
     """
     st.markdown(html_table, unsafe_allow_html=True)

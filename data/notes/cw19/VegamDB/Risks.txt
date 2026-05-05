@@ -1,0 +1,2 @@
+High | Nithya | 2026-04-30 | Open | Need to have an acceptance test defined for VegamDB on SDB
+High | Nithya | 2026-04-30 | In Progress | Need to talk about EKS->FKP gap, and what's the path to VegamDB GA
