@@ -1,0 +1,6 @@
+High | Haiyan | 2026-05-15 | In progress | May goals for Global Secondary Index (GSI) and sharding integration are blocked on DB Streams
+High | Haiyan | 2026-05-15 | In progress | Additional work is needed in the DB stream to handle records and route them using a raw ingest API.
+High | Haiyan | 2026-05-15 | In progress | A routing API is missing to handle pre-constructed keys and extract galactic key for routing information.
+High | Haiyan | 2026-05-15 | In progress | Concurrent GSI index creation for existing tables containing data is still under construction (?)
+
+
